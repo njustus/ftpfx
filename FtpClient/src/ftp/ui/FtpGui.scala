@@ -34,10 +34,10 @@ class FtpGui extends Application {
   
   override def start(primStage: Stage) = {
     val root = new BorderPane()
-    root.setPadding(new Insets(10,15,25,15))
+    root.setId("rootPane")
+    //root.setPadding(new Insets(10,15,25,15))
     val top = new GridPane()
-    top.setHgap(10)
-    top.setVgap(10)
+    top.setId("topGrid")
     root.setTop(top)
     val scene = new Scene(root, 600, 400)
     scene.getStylesheets().add(getClass.getResource("style/FtpGui.css").toExternalForm())
@@ -65,11 +65,12 @@ class FtpGui extends Application {
   
   private def genFileSystemView : Pane = {
     val fsRoot = new GridPane()
+    fsRoot.setId("fsGrid")
     fsRoot.add(newBoldText("Local Filesystem"), 0, 0)
+    fsRoot.add(newBoldText("Remote Filesystem"), 1, 0)
     fsRoot.add(genLocalFs(), 0, 1)
-    
-    return fsRoot
-    
+    fsRoot.add(genRemoteFs(), 1, 1)
+    return fsRoot    
   } 
 
   private def newBoldText(s: String): Text = {
@@ -77,33 +78,17 @@ class FtpGui extends Application {
     text.setId("bold-text")
     return text
   }
+  
 
-  private def genLocalFs() : TreeView[Path] = {
-      //lists all root entry points from the filesystem
-    //val rootEntrys = FileSystems.getDefault().getRootDirectories()
-    /*
-    
-    def genSubDirs(r : TreeItem[Path]) : TreeItem[Path] = {
-      println(r.getValue)
-      val attrs = Files.readAttributes(r.getValue, classOf[BasicFileAttributes] )
-      if(attrs.isDirectory()) {
-        
-        r.getValue.asScala.foreach { child => 
-          val childItem = new TreeItem[Path](child)
-          
-          genSubDirs(childItem)
-          r.getChildren().add(childItem)
-        }        
-        return r;
-      }else return r;
-    }
-    
-    */
-    val next = Paths.get(System.getProperty("user.home"))
-    println(next)
-     val root = new TreeItem[Path](next)
+  private def genLocalFs() : TreeView[File] = {
+    val next = new File (System.getProperty("user.home"))
+     val root = ViewFactory.newView(next)
    
-    return new TreeView[Path](root)
+    return root
+  }
+  
+  private def genRemoteFs() : TreeView[File] = {
+    return new TreeView[File]()
   }
 }
 
