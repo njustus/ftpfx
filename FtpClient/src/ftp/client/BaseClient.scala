@@ -26,6 +26,7 @@ class BaseClient private[client] (private val socket: Socket, private val output
   private var dataInput: Scanner = null
   private var dataOutput: PrintWriter = null
   private var actualDir: String = "/" //holds the path to the actual directory
+  private val lg: Log = new Log(receiver)
 
   /**
    * Method chaining for simply use nextLine instead of incoming.nextLine.
@@ -38,12 +39,13 @@ class BaseClient private[client] (private val socket: Socket, private val output
   /**
    * Connects the datasocket to an (new) serversocket
    */
-  private def setupPassiveConnection(): Unit = {
+  private def setupPassiveConnection(): Boolean = {
     writeLine("PASV")
     var resp = nextLine
 
-    if (!resp.startsWith("227")) receiver.error(resp)
-    else receiver.status(resp)
+    //Stop setup if failed to set to passive mode.
+    lg.newMsg(resp, x => x.startsWith("227"))
+    if (!lg.getLastResult) return false;
 
     //response is (ip,ip,ip,ip,portSub1,portSub2) --> ip = ip.ip.ip.ip | port = portSub1*256+portSub2
     //get the ip and port with regex
@@ -59,6 +61,7 @@ class BaseClient private[client] (private val socket: Socket, private val output
     dataSocket = new Socket(InetAddress.getByName(ip), port)
     dataInput = new Scanner(dataSocket.getInputStream)
     dataOutput = new PrintWriter(dataSocket.getOutputStream(), true)
+    return true;
   }
 
   /*
@@ -77,94 +80,84 @@ class BaseClient private[client] (private val socket: Socket, private val output
     dataSocket = null
   }
 
-  override def connect(username: String, password: String) = {
+  override def connect(username: String, password: String): Boolean = {
     var resp = ""
     println("USER " + username)
     writeLine("USER " + username)
 
     resp = nextLine
-    if (!resp.startsWith("331")) receiver.error(resp)
-    else receiver.status(resp)
+    lg.newMsg(resp, x => x.startsWith("331"))
+    if (!lg.getLastResult) return false;
 
     writeLine("PASS " + password)
 
     resp = nextLine
-    if (!resp.startsWith("230")) {      
-      receiver.error(resp)
-      throw new ConnectException("Coudln't authenticate as "+username+"\nUsername or password wrong!")
-    }
-    else receiver.status(resp)
+    lg.newMsg(resp, x => x.startsWith("230"))
+    return lg.getLastResult
 
   }
-  override def disconnect() = {
+  override def disconnect(): Boolean = {
     var resp = ""
     writeLine("QUIT")
 
     resp = nextLine
-    if (!resp.startsWith("221")){
-      receiver.error(resp)
-      throw new DisconnectException("Can't disconnect from the server. Try again.")
-    }
-    else receiver.status(resp)
+    lg.newMsg(resp, x => x.startsWith("221"))
 
     output.close()
     incoming.close()
     socket.close()
+
+    return lg.getLastResult
   }
-  override def cd(path: String) = {
+  override def cd(path: String): String = {
     var resp = ""
     writeLine("CWD " + path)
 
     resp = nextLine
-    if (!resp.startsWith("250")) {
-      receiver.error(resp)
-      if(resp.contains("permission"))
-          throw new CDException("Can't switch to "+path+" permission denied.")
-      else    
-        throw new CDException("Can't switch to "+path)
+    lg.newMsg(resp, x => x.startsWith("250"))
+    if (lg.getLastResult) {
+      actualDir = if (path.startsWith("/")) path else actualDir.concat("/" + path);
     }
-    else {
-      receiver.status(resp)
-      actualDir = if (path.startsWith("/")) path else actualDir.concat("/" + path)
-    }
+
+    return actualDir;
   }
-  override def ls() = {
+  override def ls(): List[String] = {
     if (dataSocket == null)
       changeMode(false)
 
     writeLine("LIST")
     var respCtrl = nextLine
-    if (!respCtrl.startsWith("150")) receiver.error(respCtrl)
-    else receiver.status(respCtrl)
 
-    var response = new StringBuilder()
+    lg.newMsg(respCtrl, x => x.startsWith("150"))
+    if (!lg.getLastResult) return List()
+
+    var response = List[String]()
     while (dataInput.hasNext)
-      response.append(dataInput.nextLine).append("\n")
+      response ++ dataInput.nextLine()
 
     respCtrl = nextLine
-    if (!respCtrl.startsWith("226")) receiver.error(respCtrl)
-    else {
-      receiver.status(respCtrl)
-      receiver.newMsg(response.toString)
-    }
+    lg.newMsg(respCtrl, x => x.startsWith("226"))
 
     closeDataSocket()
+    return response
   }
-  override def pwd() = {
+  override def pwd(): String = {
     var resp = ""
     writeLine("PWD")
     resp = nextLine
 
-    if (!resp.startsWith("257")) receiver.error(resp)
+    lg.newMsg(resp, x => x.startsWith("257"))
+    if (!lg.getLastResult) return "ERROR"
     else {
-      receiver.status(resp)
+      lg.newMsg(resp)
+
       val matcher = "\\\".*\\\"".r
       var path = matcher.findFirstIn(resp).get
       path = path.substring(1, path.length - 1)
-      receiver.newMsg(path)
+      return (path)
     }
   }
-  override def sendFile(filename: String) = {
+  override def sendFile(filename: String): Boolean = {
     if (dataSocket == null)
       changeMode(false)
 
@@ -172,14 +165,15 @@ class BaseClient private[client] (private val socket: Socket, private val output
     val file = Paths.get(filename)
     val fileStream = Files.newInputStream(file)
 
-    if (!file.toFile().exists())
-      receiver.error("File " + file.toString() + " doesn't exist")
+    if (!file.toFile().exists()) {
+      lg.newError("File " + file.toString() + " doesn't exist")
+      return false;
+    }
 
     writeLine("STOR " + file.getFileName.toString)
     var resp = nextLine
 
-    if (!resp.startsWith("150")) receiver.error(resp)
-    else receiver.status(resp)
+    lg.newMsg(resp, x => x.startsWith("150"))
 
     var buffer = new Array[Byte](BUFFER_SIZE)
     var length: Int = 0
@@ -194,14 +188,17 @@ class BaseClient private[client] (private val socket: Socket, private val output
     resp = nextLine
     if (!resp.startsWith("226")) {
       receiver.error(resp + "\nCan't upload " + file.getFileName.toString)
+      return false
     } else {
       receiver.status(resp)
       receiver.status("Upload of " + file.getFileName.toString + " was successfull.")
     }
 
     closeDataSocket()
+
+    return true;
   }
-  override def receiveFile(filename: String, dest: String) = {
+  override def receiveFile(filename: String, dest: String): Boolean = {
     if (dataSocket == null)
       changeMode(false)
 
@@ -212,8 +209,8 @@ class BaseClient private[client] (private val socket: Socket, private val output
 
     writeLine("RETR " + filename)
     var resp = nextLine
-    if (!resp.startsWith("150")) receiver.error(resp)
-    else receiver.status(resp)
+
+    lg.newMsg(resp, x => x.startsWith("150"))
 
     var length: Int = 0
 
@@ -226,10 +223,11 @@ class BaseClient private[client] (private val socket: Socket, private val output
     localStream.close
 
     resp = nextLine
-    if (!resp.startsWith("226")) receiver.error(resp)
-    else receiver.status(resp)
+    lg.newMsg(resp, x => x.startsWith("226"))
+    val res = lg.getLastResult
 
     closeDataSocket()
+    return res
   }
   override def getServerInformation(): String = {
     throw new NotImplementedError()
@@ -246,7 +244,7 @@ class BaseClient private[client] (private val socket: Socket, private val output
     return passiveMode
   }
 
-  override def renameFile(oldPath: String, newPath: String) = {
+  override def renameFile(oldPath: String, newPath: String): Boolean = {
     var op = if (oldPath.startsWith("/")) oldPath else actualDir.concat(oldPath)
     var np = if (newPath.startsWith("/")) newPath else actualDir.concat(newPath)
 
@@ -260,11 +258,13 @@ class BaseClient private[client] (private val socket: Socket, private val output
 
     writeLine("RNTO " + np)
     resp = nextLine
-    if (resp.startsWith("250")) receiver.status(resp)
-    else receiver.error(resp)
+
+    lg.newMsg(resp, x => x.startsWith("250"))
+    return lg.getLastResult
+
   }
 
-  override def deleteFile(path: String) = {
+  override def deleteFile(path: String): Boolean = {
     val p = if (path.startsWith("/")) path else actualDir.concat(path)
 
     /**
@@ -272,11 +272,11 @@ class BaseClient private[client] (private val socket: Socket, private val output
      */
     writeLine("DELE" + p)
     val resp = nextLine
-    if (resp.startsWith("250")) receiver.status(resp)
-    else receiver.error(resp)
+    lg.newMsg(resp, x => x.startsWith("250"))
+    return lg.getLastResult
   }
 
-  override def deleteDir(path: String) = {
+  override def deleteDir(path: String): Boolean = {
     val p = if (path.startsWith("/")) path else actualDir.concat(path)
 
     /**
@@ -284,11 +284,11 @@ class BaseClient private[client] (private val socket: Socket, private val output
      */
     writeLine("RMD" + p)
     val resp = nextLine
-    if (resp.startsWith("250")) receiver.status(resp)
-    else receiver.error(resp)
+    lg.newMsg(resp, x => x.startsWith("250"))
+    return lg.getLastResult
   }
 
-  override def mkdir(path: String) = {
+  override def mkdir(path: String): Boolean = {
     val p = if (path.startsWith("/")) path else actualDir.concat(path)
 
     /**
@@ -296,10 +296,10 @@ class BaseClient private[client] (private val socket: Socket, private val output
      */
     writeLine("MKD" + p)
     val resp = nextLine
-    if (resp.startsWith("250")) receiver.status(resp)
-    else receiver.error(resp)
+    lg.newMsg(resp, x => x.startsWith("250"))
+    return lg.getLastResult
   }
-  
+
   override def quit() = {
     writeLine("ABOR")
     val resp = nextLine

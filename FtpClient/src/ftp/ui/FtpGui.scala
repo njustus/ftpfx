@@ -1,31 +1,33 @@
 package ftp.ui
 
-import javafx.application.Application
-import javafx.geometry.Insets
-import javafx.stage.Stage
-import javafx.scene._
-import javafx.scene.layout._
-import javafx.scene.text._
-import javafx.scene.control._
-import javafx.event._
-import java.nio.file.Path
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.FileSystems
 import java.io.File
-import ftp.client.FtpClient
+
 import ftp.client.ClientFactory
-import java.nio.file.attribute.BasicFileAttributes
+import ftp.client.FtpClient
+import ftp.response.Receivable
+import javafx.application.Application
+import javafx.event.ActionEvent
+import javafx.event.EventHandler
+import javafx.scene.Scene
+import javafx.scene.control.Button
+import javafx.scene.control.PasswordField
+import javafx.scene.control.TextField
+import javafx.scene.control.TreeItem
+import javafx.scene.control.TreeView
+import javafx.scene.layout.BorderPane
+import javafx.scene.layout.GridPane
+import javafx.scene.layout.Pane
+import javafx.scene.text.Text
+import javafx.stage.Stage
 
-import scala.collection.JavaConverters._
 
-
-class FtpGui extends Application {
+class FtpGui extends Application with EventHandler[ActionEvent]{
   private var ftpClient : FtpClient = null;
   private val txtServer = new TextField()
   private val txtPort = new TextField("21")
   private val txtUsername = new TextField()
   private val txtPassword = new PasswordField()
+  private val btnConnect = new Button("Connect")
   /*
    //TODO this 2 val's will hold the filesystems, like the treenodes in swing
   private val localFs
@@ -41,9 +43,10 @@ class FtpGui extends Application {
     root.setTop(top)
     val scene = new Scene(root, 600, 400)
     scene.getStylesheets().add(getClass.getResource("style/FtpGui.css").toExternalForm())
-    val btnConnect = new Button("Connect")
-    btnConnect.setId("green")
     
+    btnConnect.setId("green")
+    btnConnect.setOnAction(this)
+
     txtPort.setMaxWidth(50)
 
     top.add(newBoldText("Servername"), 0, 0)
@@ -88,7 +91,36 @@ class FtpGui extends Application {
   }
   
   private def genRemoteFs() : TreeView[File] = {
-    return new TreeView[File]()
+    return new TreeView[File](new TreeItem[File](new File("Not Connected.")))
+  }
+  
+  /*------------- EventHandlers -------------------- */
+  override def handle(ev: ActionEvent): Unit = {
+    if(ev.getSource() == btnConnect) {
+       val servername = txtServer.getText
+       val port = txtPort.getText.toInt
+       val username = txtUsername.getText
+       val password = txtPassword.getText
+       
+       ftpClient = ClientFactory.newBaseClient(servername, port, new ReceiveHandler() )
+       ftpClient.connect(username, password)
+       val userDir = ftpClient.ls()
+    }
+  }
+  
+  /*Handler for the logs*/
+  private class ReceiveHandler extends Receivable {
+    def error(msg: String): Unit = {
+      throw new NotImplementedError
+    }
+
+    def newMsg(msg: String): Unit = {
+      throw new NotImplementedError
+    }
+
+    def status(msg: String): Unit = {
+     println("Status: "+msg)
+    }
   }
 }
 

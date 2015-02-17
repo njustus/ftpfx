@@ -19,11 +19,10 @@ object ConsoleUi {
     bs.connect("nico", "f3dora")
     bs.cd("/home/nico/Downloads")
     bs.pwd()
-    
+
     //bs.sendFile("/home/nico/Bilder/TLOU/Ellie-Winter-Yuiphone-The-Last-Of-Us-1920x1080-HD-Wallpapers.jpg")
     bs.ls
     //bs.receiveFile("/home/nico/Downloads/muster-lebenslauf.pdf", "/home/nico/Downloads/muster-lebenslauf.pdf")
     bs.disconnect()
-   
   }
 }
