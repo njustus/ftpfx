@@ -13,12 +13,12 @@ object ViewFactory {
   def newView(file : File) : TreeView[File] = {    
     
     def subs(f: File) : TreeItem[File] = {
-      if(f.isDirectory()) {
-        val directory = new TreeItem[File](f)        
-        
-        f.listFiles().foreach { child => directory.getChildren.add(subs(child)) }
-        return directory
-      }else return new TreeItem[File](f)        
+        if(f.isDirectory()) {
+          val directory = new TreeItem[File](f)        
+          
+          f.listFiles().foreach { child => if(!child.isHidden()) directory.getChildren.add(subs(child)) }
+          return directory
+        }else return new TreeItem[File](f)   
     }
 
     return new TreeView[File](subs(file))

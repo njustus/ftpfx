@@ -1,7 +1,6 @@
 package ftp.ui
 
 import java.io.File
-
 import ftp.client.ClientFactory
 import ftp.client.FtpClient
 import ftp.response.Receivable
@@ -19,6 +18,7 @@ import javafx.scene.layout.GridPane
 import javafx.scene.layout.Pane
 import javafx.scene.text.Text
 import javafx.stage.Stage
+import javafx.scene.control.CheckBox
 
 
 class FtpGui extends Application with EventHandler[ActionEvent]{
@@ -86,7 +86,7 @@ class FtpGui extends Application with EventHandler[ActionEvent]{
   private def genLocalFs() : TreeView[File] = {
     val next = new File (System.getProperty("user.home"))
      val root = ViewFactory.newView(next)
-   
+
     return root
   }
   
