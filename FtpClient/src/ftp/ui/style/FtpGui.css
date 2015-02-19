@@ -2,6 +2,7 @@
 	Defines the standard-theme for the ftpfx-gui.
 */
 
+/*define standard-components*/
 .root {
 	-fx-background-color:#CCFF99;
 }
@@ -24,7 +25,9 @@
 .button:hover {
 		/*TODO: setup a darker theme as .button*/
 }
-
+.menu-bar {
+	-fx-background-color:#82c242;
+}
 #rootPane {
 	/* top, right, bottom, left */
 	-fx-padding: 10, 15, 25, 15;

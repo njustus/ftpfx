@@ -1,6 +1,8 @@
 package ftp.ui
 
 import java.io.File
+import java.net.SocketException
+import java.net.ConnectException
 import javafx.application.Application
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
@@ -14,18 +16,20 @@ import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
 import javafx.scene.control.TreeItem
 import javafx.scene.control.TreeView
+import javafx.scene.control.Menu
+import javafx.scene.control.MenuBar
+import javafx.scene.control.MenuItem
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.Pane
+import javafx.scene.layout.Background
 import javafx.scene.text.Text
 import javafx.stage.Stage
 import ftp.client.ClientFactory
 import ftp.client.FtpClient
 import ftp.response.Receivable
-import ftp.ui.FxEventHandlerImplicits.actionEvent2EventHandler
-import java.net.SocketException
-import java.net.ConnectException
-import javafx.scene.layout.Background
+import ftp.ui.FxEventHandlerImplicits._
+import javafx.scene.layout.VBox
 
 /**
  * This class is used for the FX-GUI.
@@ -33,7 +37,12 @@ import javafx.scene.layout.Background
 class FtpGui extends Application {
   private var ftpClient: FtpClient = null
   private val receiver: Receivable = new ReceiveHandler
-
+  
+  //menue
+  private val menueBar = new MenuBar()
+  private val fileMenue = new Menu("File")
+  private val helpMenue = new Menu("Help")
+  
   //Connection
   private val txtServer = new TextField()
   private val txtPort = new TextField("21")
@@ -49,15 +58,28 @@ class FtpGui extends Application {
   private var remoteFs: TreeView[File] = null
 
   override def start(primStage: Stage) = {
+    val vboxContainer = new VBox();
     val root = new BorderPane()
     root.setId("rootPane")
-    //root.setPadding(new Insets(10,15,25,15))
     val top = new GridPane()
     top.setId("topGrid")
     root.setTop(top)
-    val scene = new Scene(root, 800, 600)
+    val scene = new Scene(vboxContainer, 800, 700)
     scene.getStylesheets().add(getClass.getResource("style/FtpGui.css").toExternalForm())
 
+    //Menues
+      //Help menue
+    val clientInfoMnItem = new MenuItem("Client information")
+    val serverInfoMnItem = new MenuItem("Server information")
+    val aboutInfoMnItem = new MenuItem("About...")
+    clientInfoMnItem.setOnAction((ev: ActionEvent) => showClientInformation())
+    serverInfoMnItem.setOnAction((ev: ActionEvent) => showServerInformation())
+    aboutInfoMnItem.setOnAction((ev: ActionEvent) => showAbout())   
+    helpMenue.getItems.addAll(clientInfoMnItem, serverInfoMnItem, aboutInfoMnItem)
+    
+      //Add menues to the menuebar, add the menuebar
+    menueBar.getMenus.addAll(fileMenue, helpMenue)
+    
     btnConnect.setId("green")
     btnConnect.setOnAction((ev: ActionEvent) => connect())
     btnDisconnect.setId("red")
@@ -92,6 +114,7 @@ class FtpGui extends Application {
 
     root.setBottom(pane)
 
+    vboxContainer.getChildren.addAll(menueBar, root)   
     primStage.setTitle("NJ's FTP")
     primStage.setScene(scene)
     primStage.show()
@@ -182,6 +205,18 @@ class FtpGui extends Application {
     def newMsg(msg: String): Unit = txaLog.appendText(msg)
     def status(msg: String): Unit = txaLog.appendText(msg)
   } //class ReceiveHandler
+
+  private def showServerInformation() = {
+    ???
+  }
+
+  private def showClientInformation() = {
+    ???
+  }
+
+  private def showAbout() = {
+    ???
+  }
 }
 
 object FtpGui {
