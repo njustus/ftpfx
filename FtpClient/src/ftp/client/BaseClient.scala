@@ -1,18 +1,16 @@
 package ftp.client
 
-import java.net.Socket
+import java.io.BufferedOutputStream
+import java.io.FileOutputStream
+import java.io.PrintWriter
 import java.net.InetAddress
+import java.net.Socket
+import java.net.SocketException
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.io._
 import java.util.Scanner
-import java.util.Arrays
+
 import ftp.response.Receivable
-import ftp.client.exceptions._
-import java.util.StringTokenizer
-import scala.runtime.ScalaRunTime._
-import java.io.BufferedWriter
-import java.net.SocketException
 
 /**
  * Defines a simple ftpclient.

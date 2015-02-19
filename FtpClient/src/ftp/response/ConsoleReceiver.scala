@@ -5,7 +5,7 @@ package ftp.response
  * This class uses the print-methods for printing status and messages. If an error-message is received the program is killed with System.exit()
  */
 class ConsoleReceiver extends Receivable {
-  override def newMsg(msg: String) : Unit = {
+  override def newMsg(msg: String): Unit = {
     printf("Message: %s\n", msg)
   }
   override def status(msg: String): Unit = {
