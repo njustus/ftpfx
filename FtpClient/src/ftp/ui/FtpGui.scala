@@ -1,7 +1,6 @@
 package ftp.ui
 
 import java.io.File
-
 import javafx.application.Application
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
@@ -20,11 +19,13 @@ import javafx.scene.layout.GridPane
 import javafx.scene.layout.Pane
 import javafx.scene.text.Text
 import javafx.stage.Stage
-
 import ftp.client.ClientFactory
 import ftp.client.FtpClient
 import ftp.response.Receivable
 import ftp.ui.FxEventHandlerImplicits.actionEvent2EventHandler
+import java.net.SocketException
+import java.net.ConnectException
+import javafx.scene.layout.Background
 
 class FtpGui extends Application with EventHandler[ActionEvent] {
   private var ftpClient: FtpClient = null
@@ -97,10 +98,15 @@ class FtpGui extends Application with EventHandler[ActionEvent] {
   private def genFileSystemView(): Pane = {
     val fsRoot = new GridPane()
     fsRoot.setId("fsGrid")
+    
     fsRoot.add(newBoldText("Local Filesystem"), 0, 0)
-    fsRoot.add(newBoldText("Remote Filesystem"), 1, 0)
+    fsRoot.add(newBoldText("Remote Filesystem"), 1, 0)    
     localFs = genLocalFs()
+    localFs.setMinSize(370, 300)
     remoteFs = genRemoteFs()
+    remoteFs.setMinSize(370, 300)
+
+
     fsRoot.add(localFs, 0, 1)
     fsRoot.add(remoteFs, 1, 1)
     return fsRoot
@@ -130,14 +136,16 @@ class FtpGui extends Application with EventHandler[ActionEvent] {
       val username = txtUsername.getText
       val password = txtPassword.getText
       var userDir = List[String]()
-
-      try {
-        ftpClient = ClientFactory.newBaseClient(servername, port, receiver)
-        ftpClient.connect(username, password)
-        userDir = ftpClient.ls()
-      } catch {
-        case e: Throwable => handleException(e)
-        case _: Throwable => receiver.error("An unknown error was thrown");
+      
+      if( servername.isEmpty() || txtPort.getText.isEmpty() ) receiver.error("Specify Server & Port.")
+      else {
+        try {
+          ftpClient = ClientFactory.newBaseClient(servername, port, receiver)
+          ftpClient.connect(username, password)
+          userDir = ftpClient.ls()
+        } catch {
+          case ex:Throwable => handleException(ex)
+        }
       }
     }
   }
@@ -150,12 +158,23 @@ class FtpGui extends Application with EventHandler[ActionEvent] {
      * TODO implement wright error handling..
      *  --> right it to the log and informate the user.
      */
-    e.printStackTrace()
+    e match {
+      case (_:java.net.ConnectException | _:java.net.SocketException) => receiver.error(e.getMessage)      
+      case _ => receiver.error(e.getMessage)
+    }   
   }
+
 
   /*Handler for the logs*/
   private class ReceiveHandler extends Receivable {
-    def error(msg: String): Unit = txaLog.appendText("ERROR: " + msg)
+    def error(msg: String): Unit = {
+      txaLog.appendText(s"ERROR: $msg\n")
+      /*
+       * TODO show an error-box when they released with jdk8_40..
+       * => march 2015
+       * alternative implement them on your own
+       */
+    }
     def newMsg(msg: String): Unit = txaLog.appendText(msg)
     def status(msg: String): Unit = txaLog.appendText(msg)
   } //class ReceiveHandler
