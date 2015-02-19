@@ -27,7 +27,10 @@ import java.net.SocketException
 import java.net.ConnectException
 import javafx.scene.layout.Background
 
-class FtpGui extends Application with EventHandler[ActionEvent] {
+/**
+ * This class is used for the FX-GUI.
+ */
+class FtpGui extends Application {
   private var ftpClient: FtpClient = null
   private val receiver: Receivable = new ReceiveHandler
 
@@ -38,7 +41,6 @@ class FtpGui extends Application with EventHandler[ActionEvent] {
   private val txtPassword = new PasswordField()
   private val btnConnect = new Button("Connect")
   private val btnDisconnect = new Button("Disconnect")
-
   //Logs
   private val txaLog = new TextArea()
   private val txaLoads = new TextArea()
@@ -57,7 +59,7 @@ class FtpGui extends Application with EventHandler[ActionEvent] {
     scene.getStylesheets().add(getClass.getResource("style/FtpGui.css").toExternalForm())
 
     btnConnect.setId("green")
-    btnConnect.setOnAction(this)
+    btnConnect.setOnAction((ev: ActionEvent) => connect())
     btnDisconnect.setId("red")
     btnDisconnect.setOnAction((ev: ActionEvent) => if (ftpClient != null) ftpClient.disconnect())
 
@@ -98,14 +100,13 @@ class FtpGui extends Application with EventHandler[ActionEvent] {
   private def genFileSystemView(): Pane = {
     val fsRoot = new GridPane()
     fsRoot.setId("fsGrid")
-    
+
     fsRoot.add(newBoldText("Local Filesystem"), 0, 0)
-    fsRoot.add(newBoldText("Remote Filesystem"), 1, 0)    
+    fsRoot.add(newBoldText("Remote Filesystem"), 1, 0)
     localFs = genLocalFs()
     localFs.setMinSize(370, 300)
     remoteFs = genRemoteFs()
     remoteFs.setMinSize(370, 300)
-
 
     fsRoot.add(localFs, 0, 1)
     fsRoot.add(remoteFs, 1, 1)
@@ -128,27 +129,30 @@ class FtpGui extends Application with EventHandler[ActionEvent] {
   private def genRemoteFs(): TreeView[File] =
     new TreeView[File](new TreeItem[File](new File("Not Connected.")))
 
-  /*------------- EventHandlers -------------------- */
-  override def handle(ev: ActionEvent): Unit = {
-    if (ev.getSource() == btnConnect) {
-      val servername = txtServer.getText
-      val port = txtPort.getText.toInt
-      val username = txtUsername.getText
-      val password = txtPassword.getText
-      var userDir = List[String]()
-      
-      if( servername.isEmpty() || txtPort.getText.isEmpty() ) receiver.error("Specify Server & Port.")
-      else {
-        try {
-          ftpClient = ClientFactory.newBaseClient(servername, port, receiver)
-          ftpClient.connect(username, password)
-          userDir = ftpClient.ls()
-        } catch {
-          case ex:Throwable => handleException(ex)
-        }
+  /*
+   * ------------- EventHandlers -------------------- 
+   * Each button gets an own function
+   * -----------------------------------------------
+   */
+
+  private def connect() = {
+    val servername = txtServer.getText
+    val port = txtPort.getText.toInt
+    val username = txtUsername.getText
+    val password = txtPassword.getText
+    var userDir = List[String]()
+
+    if (servername.isEmpty() || txtPort.getText.isEmpty()) receiver.error("Specify Server & Port.")
+    else {
+      try {
+        ftpClient = ClientFactory.newBaseClient(servername, port, receiver)
+        ftpClient.connect(username, password)
+        userDir = ftpClient.ls()
+      } catch {
+        case ex: Throwable => handleException(ex)
       }
     }
-  }
+  } //connect
 
   /**
    * Handler for exceptions
@@ -159,11 +163,11 @@ class FtpGui extends Application with EventHandler[ActionEvent] {
      *  --> right it to the log and informate the user.
      */
     e match {
-      case (_:java.net.ConnectException | _:java.net.SocketException) => receiver.error(e.getMessage)      
-      case _ => receiver.error(e.getMessage)
-    }   
+      case (_: java.net.ConnectException | _: java.net.SocketException) => receiver.error(e.getMessage)
+      case ex: java.net.UnknownHostException => receiver.error("Unknown Host: " + txtServer.getText)
+      case _ => receiver.error(e.toString)
+    }
   }
-
 
   /*Handler for the logs*/
   private class ReceiveHandler extends Receivable {

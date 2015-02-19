@@ -1,3 +1,7 @@
+/*
+	Defines the standard-theme for the ftpfx-gui.
+*/
+
 .root {
 	-fx-background-color:#CCFF99;
 }

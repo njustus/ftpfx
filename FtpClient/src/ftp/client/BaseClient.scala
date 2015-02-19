@@ -16,9 +16,6 @@ import ftp.response.Receivable
  * Defines a simple ftpclient.
  */
 class BaseClient private[client] (private val socket: Socket, private val output: PrintWriter, private val incoming: Scanner, private val receiver: Receivable) extends FtpClient {
-  /*
-   * Achtung passive-ports wechseln ständig.. Evtl. immer wieder neuen socket connecten
-   */
   private var passiveMode: Boolean = true //true if in passive mode, false otherwise
   private var dataSocket: Socket = null //used for the data-connection
   private var dataInput: Scanner = null
@@ -62,7 +59,7 @@ class BaseClient private[client] (private val socket: Socket, private val output
     return true;
   }
 
-  /*
+  /**
    * Closes the dataSocket and all dataStreams.
    */
   private def closeDataSocket(): Unit = {
@@ -228,10 +225,10 @@ class BaseClient private[client] (private val socket: Socket, private val output
     return res
   }
   override def getServerInformation(): String = {
-    throw new NotImplementedError()
+    ???
   }
   override def getClientInformation(): String = {
-    throw new NotImplementedError()
+    ???
   }
   override def changeMode(active: Boolean): Boolean = {
     if (active) {

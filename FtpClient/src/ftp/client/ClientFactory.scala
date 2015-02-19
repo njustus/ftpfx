@@ -20,8 +20,6 @@ object ClientFactory {
    * @param serverName the servername or the ip address
    * @param port the portnumber for the control socket
    * @param rc the receivable object which acceppts and interogates with all messages
-   * @throws IOException something went wrong while creating the objects for input-/output streams
-   * @throws SocketException something went wrong while connecting the socket
    */
   def newBaseClient(serverName: String, port: Int, rc: Receivable): FtpClient = {
     var sckt = new Socket(InetAddress.getByName(serverName), port)
@@ -40,8 +38,6 @@ object ClientFactory {
    *
    * @param serverName the servername or the ip address
    * @param rc the receivable object which acceppts and interogates with all messages
-   * @throws IOException something went wrong while creating the objects for input-/output streams
-   * @throws SocketException something went wrong while connecting the socket
    */
   def newBaseClient(serverName: String, rc: Receivable): FtpClient = newBaseClient(serverName, 21, rc)
 }
