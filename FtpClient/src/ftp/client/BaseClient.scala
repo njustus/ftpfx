@@ -133,7 +133,7 @@ class BaseClient private[client] (private val socket: Socket, private val output
 
     var response = List[String]()
     while (dataInput.hasNext)
-      response ++ dataInput.nextLine()
+      response + dataInput.nextLine()
 
     respCtrl = nextLine
     lg.newMsg(respCtrl, x => x.startsWith("226"))
