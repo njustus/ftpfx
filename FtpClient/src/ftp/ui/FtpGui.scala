@@ -55,7 +55,7 @@ class FtpGui extends Application {
   private val txaLoads = new TextArea()
   //Filesystems
   private var localFs: TreeView[File] = null
-  private var remoteFs: TreeView[File] = null
+  private var remoteFs: TreeView[String] = null
 
   override def start(primStage: Stage) = {
     val vboxContainer = new VBox();
@@ -149,9 +149,18 @@ class FtpGui extends Application {
     return root
   }
 
-  private def genRemoteFs(): TreeView[File] =
-    new TreeView[File](new TreeItem[File](new File("Not Connected.")))
+  private def genRemoteFs(): TreeView[String] =
+    new TreeView[String](new TreeItem[String]("Not Connected."))
 
+ /**
+  * Generates the new initialized remote-view.
+  */
+  private def genRemoteFs(dir: String, content : List[String]) = {
+    val root = ViewFactory.newSubView(dir, content)
+    
+    remoteFs.setRoot(root)
+  }
+  
   /*
    * ------------- EventHandlers -------------------- 
    * Each button gets an own function
@@ -164,13 +173,16 @@ class FtpGui extends Application {
     val username = txtUsername.getText
     val password = txtPassword.getText
     var userDir = List[String]()
+    var actualDir = ""
 
     if (servername.isEmpty() || txtPort.getText.isEmpty()) receiver.error("Specify Server & Port.")
     else {
       try {
         ftpClient = ClientFactory.newBaseClient(servername, port, receiver)
         ftpClient.connect(username, password)
-        userDir = ftpClient.ls()
+        actualDir = ftpClient.pwd()
+        userDir = ftpClient.ls()        
+        genRemoteFs(actualDir, userDir)
       } catch {
         case ex: Throwable => handleException(ex)
       }
@@ -195,7 +207,7 @@ class FtpGui extends Application {
   /*Handler for the logs*/
   private class ReceiveHandler extends Receivable {
     def error(msg: String): Unit = {
-      txaLog.appendText(s"ERROR: $msg\n")
+      txaLog.appendText(s"ERROR: $msg")
       /*
        * TODO show an error-box when they released with jdk8_40..
        * => march 2015
