@@ -9,7 +9,6 @@ import ftp.ui.filewalker.GenerateTree
 import java.nio.file.Path
 import java.nio.file.Files
 import java.nio.file.Paths
-
 import scala.collection.JavaConversions._
 
 object ViewFactory {
