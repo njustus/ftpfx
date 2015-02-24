@@ -30,6 +30,7 @@ import ftp.client.FtpClient
 import ftp.response.Receivable
 import ftp.ui.FxEventHandlerImplicits._
 import javafx.scene.layout.VBox
+import javafx.scene.control.CheckBoxTreeItem
 
 /**
  * This class is used for the FX-GUI.
@@ -150,7 +151,7 @@ class FtpGui extends Application {
   }
 
   private def genRemoteFs(): TreeView[String] =
-    new TreeView[String](new TreeItem[String]("Not Connected."))
+    new TreeView[String](new CheckBoxTreeItem[String]("Not Connected."))
 
  /**
   * Generates the new initialized remote-view.

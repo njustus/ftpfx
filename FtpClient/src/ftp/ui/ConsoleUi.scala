@@ -16,7 +16,6 @@ object ConsoleUi {
   def main(args: Array[String]): Unit = {
     val rec = new ConsoleReceiver
     val bs = ClientFactory.newBaseClient("localhost", rec)
-    bs.connect("nico", "f3dora")
     bs.cd("/home/nico/Downloads")
     bs.pwd()
 

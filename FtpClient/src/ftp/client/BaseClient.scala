@@ -77,7 +77,6 @@ class BaseClient private[client] (private val socket: Socket, private val output
 
   override def connect(username: String, password: String): Boolean = {
     var resp = ""
-    println("USER " + username)
     writeLine("USER " + username)
 
     resp = nextLine
@@ -120,7 +119,7 @@ class BaseClient private[client] (private val socket: Socket, private val output
     if (dataSocket == null)
       changeMode(false)
 
-    writeLine("LIST")
+    writeLine("NLST")
     var respCtrl = nextLine
 
     lg.newMsg(respCtrl, x => x.startsWith("150"))
@@ -128,7 +127,7 @@ class BaseClient private[client] (private val socket: Socket, private val output
 
     var response = List[String]()
     while (dataInput.hasNext)
-      response + dataInput.nextLine()
+      response = response :+ dataInput.nextLine()
 
     respCtrl = nextLine
     lg.newMsg(respCtrl, x => x.startsWith("226"))
