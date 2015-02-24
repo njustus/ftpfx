@@ -31,6 +31,7 @@ import ftp.response.Receivable
 import ftp.ui.FxEventHandlerImplicits._
 import javafx.scene.layout.VBox
 import javafx.scene.control.CheckBoxTreeItem
+import javafx.scene.control.cell.CheckBoxTreeCell
 
 /**
  * This class is used for the FX-GUI.
@@ -56,10 +57,14 @@ class FtpGui extends Application {
   private val txaLoads = new TextArea()
   //Filesystems
   private var localFs: TreeView[File] = null
-  private var remoteFs: TreeView[String] = null
+  private var remoteFs: TreeView[File] = null
+  
+  //Down-/Uploads
+  private val btnUpload = new Button("Upload")
+  private val btnDownload = new Button("Download")
 
   override def start(primStage: Stage) = {
-    val vboxContainer = new VBox();
+    val vboxContainer = new VBox()
     val root = new BorderPane()
     root.setId("rootPane")
     val top = new GridPane()
@@ -85,6 +90,8 @@ class FtpGui extends Application {
     btnConnect.setOnAction((ev: ActionEvent) => connect())
     btnDisconnect.setId("red")
     btnDisconnect.setOnAction((ev: ActionEvent) => if (ftpClient != null) ftpClient.disconnect())
+    btnUpload.setOnAction( (ev: ActionEvent) => shareFiles(Upload, localFs))
+    btnDownload.setOnAction( (ev: ActionEvent) => shareFiles(Download, localFs))
 
     txtPort.setMaxWidth(50)
 
@@ -98,6 +105,8 @@ class FtpGui extends Application {
     top.add(txtPassword, 3, 1)
     top.add(btnConnect, 4, 1)
     top.add(btnDisconnect, 4, 0)
+    top.add(btnUpload, 5,0)
+    top.add(btnDownload, 5, 1)
 
     root.setCenter(genFileSystemView())
 
@@ -150,8 +159,11 @@ class FtpGui extends Application {
     return root
   }
 
-  private def genRemoteFs(): TreeView[String] =
-    new TreeView[String](new CheckBoxTreeItem[String]("Not Connected."))
+  private def genRemoteFs(): TreeView[File] = {
+    val tree = new TreeView[File](new CheckBoxTreeItem[File](new File("Not Connected.") ))
+    tree.setCellFactory(CheckBoxTreeCell.forTreeView())
+    return tree
+  }
 
  /**
   * Generates the new initialized remote-view.
@@ -159,7 +171,7 @@ class FtpGui extends Application {
   private def genRemoteFs(dir: String, content : List[String]) = {
     val root = ViewFactory.newSubView(dir, content)
     
-    remoteFs.setRoot(root)
+    remoteFs.setRoot( ViewFactory.newSubView(dir, content) )  
   }
   
   /*
@@ -229,6 +241,20 @@ class FtpGui extends Application {
 
   private def showAbout() = {
     ???
+  }
+
+  /**
+   * Handles the file transfers.
+   */
+  private def shareFiles(t :Transfer, view :TreeView[File]) = {
+    t match {
+      case Upload => {
+       println("Upload") 
+      }
+      case Download => {
+        println("Download")
+      }
+    }
   }
 }
 
