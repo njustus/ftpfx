@@ -17,8 +17,8 @@ class Log(private val rc: Receivable) {
   def newMsg(line: String, x: String => Boolean): Unit = {
     lastResult = x.apply(line)
     if (lastResult) {
-      rc.status(line+"\n")
-    } else rc.error(line+"\n")
+      rc.status(line + "\n")
+    } else rc.error(line + "\n")
   }
 
   /**

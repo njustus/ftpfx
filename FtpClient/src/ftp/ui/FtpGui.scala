@@ -32,6 +32,8 @@ import ftp.ui.FxEventHandlerImplicits._
 import javafx.scene.layout.VBox
 import javafx.scene.control.CheckBoxTreeItem
 import javafx.scene.control.cell.CheckBoxTreeCell
+import java.nio.file.Path
+import java.nio.file.Paths
 
 /**
  * This class is used for the FX-GUI.
@@ -39,12 +41,12 @@ import javafx.scene.control.cell.CheckBoxTreeCell
 class FtpGui extends Application {
   private var ftpClient: FtpClient = null
   private val receiver: Receivable = new ReceiveHandler
-  
+
   //menue
   private val menueBar = new MenuBar()
   private val fileMenue = new Menu("File")
   private val helpMenue = new Menu("Help")
-  
+
   //Connection
   private val txtServer = new TextField()
   private val txtPort = new TextField("21")
@@ -56,9 +58,9 @@ class FtpGui extends Application {
   private val txaLog = new TextArea()
   private val txaLoads = new TextArea()
   //Filesystems
-  private var localFs: TreeView[File] = null
-  private var remoteFs: TreeView[File] = null
-  
+  private var localFs: TreeView[Path] = null
+  private var remoteFs: TreeView[Path] = null
+
   //Down-/Uploads
   private val btnUpload = new Button("Upload")
   private val btnDownload = new Button("Download")
@@ -74,24 +76,24 @@ class FtpGui extends Application {
     scene.getStylesheets().add(getClass.getResource("style/FtpGui.css").toExternalForm())
 
     //Menues
-      //Help menue
+    //Help menue
     val clientInfoMnItem = new MenuItem("Client information")
     val serverInfoMnItem = new MenuItem("Server information")
     val aboutInfoMnItem = new MenuItem("About...")
     clientInfoMnItem.setOnAction((ev: ActionEvent) => showClientInformation())
     serverInfoMnItem.setOnAction((ev: ActionEvent) => showServerInformation())
-    aboutInfoMnItem.setOnAction((ev: ActionEvent) => showAbout())   
+    aboutInfoMnItem.setOnAction((ev: ActionEvent) => showAbout())
     helpMenue.getItems.addAll(clientInfoMnItem, serverInfoMnItem, aboutInfoMnItem)
-    
-      //Add menues to the menuebar, add the menuebar
+
+    //Add menues to the menuebar, add the menuebar
     menueBar.getMenus.addAll(fileMenue, helpMenue)
-    
+
     btnConnect.setId("green")
     btnConnect.setOnAction((ev: ActionEvent) => connect())
     btnDisconnect.setId("red")
     btnDisconnect.setOnAction((ev: ActionEvent) => if (ftpClient != null) ftpClient.disconnect())
-    btnUpload.setOnAction( (ev: ActionEvent) => shareFiles(Upload, localFs))
-    btnDownload.setOnAction( (ev: ActionEvent) => shareFiles(Download, localFs))
+    btnUpload.setOnAction((ev: ActionEvent) => shareFiles(Upload, localFs))
+    btnDownload.setOnAction((ev: ActionEvent) => shareFiles(Download, localFs))
 
     txtPort.setMaxWidth(50)
 
@@ -105,7 +107,7 @@ class FtpGui extends Application {
     top.add(txtPassword, 3, 1)
     top.add(btnConnect, 4, 1)
     top.add(btnDisconnect, 4, 0)
-    top.add(btnUpload, 5,0)
+    top.add(btnUpload, 5, 0)
     top.add(btnDownload, 5, 1)
 
     root.setCenter(genFileSystemView())
@@ -124,7 +126,7 @@ class FtpGui extends Application {
 
     root.setBottom(pane)
 
-    vboxContainer.getChildren.addAll(menueBar, root)   
+    vboxContainer.getChildren.addAll(menueBar, root)
     primStage.setTitle("NJ's FTP")
     primStage.setScene(scene)
     primStage.show()
@@ -152,28 +154,29 @@ class FtpGui extends Application {
     return text
   }
 
-  private def genLocalFs(): TreeView[File] = {
-    val next = new File(System.getProperty("user.home"))
-    val root = ViewFactory.newView(next)
-
-    return root
+  private def genLocalFs(): TreeView[Path] = {
+    val next = Paths.get(System.getProperty("user.home"))
+    val root = ViewFactory.newLazyView(next)
+    val view = new TreeView[Path](root)
+    view.setCellFactory(CheckBoxTreeCell.forTreeView())
+    return view
   }
 
-  private def genRemoteFs(): TreeView[File] = {
-    val tree = new TreeView[File](new CheckBoxTreeItem[File](new File("Not Connected.") ))
+  private def genRemoteFs(): TreeView[Path] = {
+    val tree = new TreeView[Path](new CheckBoxTreeItem[Path](Paths.get("Not Connected.")))
     tree.setCellFactory(CheckBoxTreeCell.forTreeView())
     return tree
   }
 
- /**
-  * Generates the new initialized remote-view.
-  */
-  private def genRemoteFs(dir: String, content : List[String]) = {
+  /**
+   * Generates the new initialized remote-view.
+   */
+  private def genRemoteFs(dir: String, content: List[String]) = {
     val root = ViewFactory.newSubView(dir, content)
-    
-    remoteFs.setRoot( ViewFactory.newSubView(dir, content) )  
+
+    remoteFs.setRoot(ViewFactory.newSubView(dir, content))
   }
-  
+
   /*
    * ------------- EventHandlers -------------------- 
    * Each button gets an own function
@@ -194,7 +197,7 @@ class FtpGui extends Application {
         ftpClient = ClientFactory.newBaseClient(servername, port, receiver)
         ftpClient.connect(username, password)
         actualDir = ftpClient.pwd()
-        userDir = ftpClient.ls()        
+        userDir = ftpClient.ls()
         genRemoteFs(actualDir, userDir)
       } catch {
         case ex: Throwable => handleException(ex)
@@ -246,10 +249,10 @@ class FtpGui extends Application {
   /**
    * Handles the file transfers.
    */
-  private def shareFiles(t :Transfer, view :TreeView[File]) = {
+  private def shareFiles(t: Transfer, view: TreeView[Path]) = {
     t match {
       case Upload => {
-       println("Upload") 
+        println("Upload")
       }
       case Download => {
         println("Download")
