@@ -1,5 +1,7 @@
 package ftp.client
 
+import ftp.client.filesystem.FileDescriptor
+
 /**
  * This trait describes Ftp-Clients.
  * FTP is a synchronous protocol so you can use send & receive methods.
@@ -31,7 +33,7 @@ trait FtpClient {
   /**
    * Lists the directory content.
    */
-  def ls(): List[String];
+  def ls(): List[FileDescriptor];
   /**
    * Prints out the actual working directory
    */
@@ -48,11 +50,13 @@ trait FtpClient {
   def receiveFile(filename: String, dest: String): Boolean;
   /**
    * Gets information about the connected server.
+   * The informations are separated by \n and the key : value by :.
    * @return the serverinformations
    */
   def getServerInformation(): String;
   /**
    * Gets information about the used client.
+   * The informations are separated by \n and the key : value by :.
    * @return the informations about the client
    */
   def getClientInformation(): String;

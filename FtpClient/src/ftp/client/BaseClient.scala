@@ -9,8 +9,10 @@ import java.net.SocketException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.Scanner
-
 import ftp.response.Receivable
+import ftp.client.filesystem.FileDescriptor
+import ftp.client.filesystem.RemoteFile
+import scala.util.Properties
 
 /**
  * Defines a simple ftpclient.
@@ -115,7 +117,7 @@ class BaseClient private[client] (private val socket: Socket, private val output
 
     return actualDir;
   }
-  override def ls(): List[String] = {
+  override def ls(): List[FileDescriptor] = {
     if (dataSocket == null)
       changeMode(false)
 
@@ -125,9 +127,9 @@ class BaseClient private[client] (private val socket: Socket, private val output
     lg.newMsg(respCtrl, x => x.startsWith("150"))
     if (!lg.getLastResult) return List()
 
-    var response = List[String]()
+    var response = List[FileDescriptor]()
     while (dataInput.hasNext)
-      response = response :+ dataInput.nextLine()
+      response = response :+ new RemoteFile(dataInput.nextLine())
 
     respCtrl = nextLine
     lg.newMsg(respCtrl, x => x.startsWith("226"))
@@ -227,7 +229,16 @@ class BaseClient private[client] (private val socket: Socket, private val output
     ???
   }
   override def getClientInformation(): String = {
-    ???
+    val sb = new StringBuilder();
+    val inet = InetAddress.getLocalHost
+    sb ++= "OS: " + Properties.osName + "\n"
+    sb ++= "Hostname: " + inet.getHostName + "\n"
+    sb ++= "Username: " + Properties.userName + "\n"
+    sb ++= "IP-Address: " + inet.getHostAddress + "\n"
+    sb ++= "(Ftp) Control Port: " + this.socket.getPort() + "\n"
+    if (this.dataSocket != null) sb ++= "(Ftp) Data Port: " + this.dataSocket.getPort() + "\n"
+
+    return sb.toString()
   }
   override def changeMode(active: Boolean): Boolean = {
     if (active) {

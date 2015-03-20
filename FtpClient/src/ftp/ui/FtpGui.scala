@@ -34,6 +34,7 @@ import javafx.scene.control.CheckBoxTreeItem
 import javafx.scene.control.cell.CheckBoxTreeCell
 import java.nio.file.Path
 import java.nio.file.Paths
+import ftp.client.filesystem.FileDescriptor
 
 /**
  * This class is used for the FX-GUI.
@@ -171,11 +172,8 @@ class FtpGui extends Application {
   /**
    * Generates the new initialized remote-view.
    */
-  private def genRemoteFs(dir: String, content: List[String]) = {
-    val root = ViewFactory.newSubView(dir, content)
-
+  private def genRemoteFs(dir: String, content: List[FileDescriptor]) =
     remoteFs.setRoot(ViewFactory.newSubView(dir, content))
-  }
 
   /*
    * ------------- EventHandlers -------------------- 
@@ -188,7 +186,7 @@ class FtpGui extends Application {
     val port = txtPort.getText.toInt
     val username = txtUsername.getText
     val password = txtPassword.getText
-    var userDir = List[String]()
+    var userDir = List[FileDescriptor]()
     var actualDir = ""
 
     if (servername.isEmpty() || txtPort.getText.isEmpty()) receiver.error("Specify Server & Port.")
@@ -203,6 +201,7 @@ class FtpGui extends Application {
         case ex: Throwable => handleException(ex)
       }
     }
+
   } //connect
 
   /**
@@ -239,7 +238,8 @@ class FtpGui extends Application {
   }
 
   private def showClientInformation() = {
-    ???
+    //TODO show an information-dialog
+    txaLoads.appendText(ftpClient.getClientInformation());
   }
 
   private def showAbout() = {

@@ -13,6 +13,7 @@ import javafx.event.EventHandler
 import javafx.event.ActionEvent
 import javafx.scene.control.CheckBoxTreeItem.TreeModificationEvent
 import javafx.beans.property.BooleanProperty
+import ftp.client.filesystem.FileDescriptor
 
 object ViewFactory {
 
@@ -68,11 +69,12 @@ object ViewFactory {
    * @param dir the actual root-directory
    * @param content the content of the directory
    */
-  def newSubView(dir: String, content: List[String]): CheckBoxTreeItem[Path] = {
+  def newSubView(dir: String, content: List[FileDescriptor]): CheckBoxTreeItem[Path] = {
     val root = new CheckBoxTreeItem[Path](Paths.get(dir))
 
     //generate directory content
-    content.foreach { f => root.getChildren.add(new CheckBoxTreeItem[Path](Paths.get(f))) }
+    //TODO add subfolder-marker, if the entry is a directory
+    content.foreach { f => root.getChildren.add(new CheckBoxTreeItem[Path](Paths.get(f.getFilename))) }
 
     root.setExpanded(true)
     return root
