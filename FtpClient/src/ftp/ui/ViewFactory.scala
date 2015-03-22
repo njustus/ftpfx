@@ -73,8 +73,15 @@ object ViewFactory {
     val root = new CheckBoxTreeItem[Path](Paths.get(dir))
 
     //generate directory content
-    //TODO add subfolder-marker, if the entry is a directory
-    content.foreach { f => root.getChildren.add(new CheckBoxTreeItem[Path](Paths.get(f.getFilename))) }
+    content.foreach { f =>
+      if (f.isDirectory()) {
+        //Add a dummy-children for identifying later in the lazy generation
+        val xItem = new CheckBoxTreeItem[Path](Paths.get(f.getFilename))
+        xItem.getChildren.add(dummyPath)
+        root.getChildren.add(xItem)
+      } else
+        root.getChildren.add(new CheckBoxTreeItem[Path](Paths.get(f.getFilename)))
+    }
 
     root.setExpanded(true)
     return root
