@@ -117,6 +117,10 @@ class BaseClient private[client] (private val socket: Socket, private val output
 
     return actualDir;
   }
+  /**
+   * @see ftp.client.Ftpclient#ls()
+   * This implementation uses the suffix of a file to descide if its a file or a directory.
+   */
   override def ls(): List[FileDescriptor] = {
     if (dataSocket == null)
       changeMode(false)
@@ -128,8 +132,15 @@ class BaseClient private[client] (private val socket: Socket, private val output
     if (!lg.getLastResult) return List()
 
     var response = List[FileDescriptor]()
+
+    //i definitively <3 scala
     while (dataInput.hasNext)
-      response = response :+ new RemoteFile(dataInput.nextLine())
+      dataInput.nextLine match {
+        //matches on a suffix like: .* => it's a file
+        case x if (x.matches(".*([.]).*"))  => response = response :+ new RemoteFile(x, false)
+        case x if (!x.matches(".*([.]).*")) => response = response :+ new RemoteFile(x, true)
+        case _                              => { /*can't happen*/ }
+      }
 
     respCtrl = nextLine
     lg.newMsg(respCtrl, x => x.startsWith("226"))

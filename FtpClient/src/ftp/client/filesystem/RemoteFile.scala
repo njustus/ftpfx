@@ -7,4 +7,6 @@ class RemoteFile(private val name: String, private val isdir: Boolean = false) e
 
   def getFilename(): String = name
   def isDirectory(): Boolean = isdir
+
+  override def toString() = name
 }
