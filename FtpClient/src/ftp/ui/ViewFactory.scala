@@ -50,14 +50,16 @@ object ViewFactory {
 
     //get all entrys without hiddenfiles
     Files.newDirectoryStream(file).filterNot { x => Files.isHidden(x) }.
-      foreach { x =>
-        if (Files.isDirectory(x)) {
-          //Add a dummy-children for identifying later in the lazy generation
-          val xItem = generateItem(x)
-          xItem.getChildren.add(dummyPath)
-          root.getChildren.add(xItem)
-        } else
-          root.getChildren.add(new CheckBoxTreeItem[Path](x))
+      foreach {
+        _ match {
+          case x if (Files.isDirectory(x)) => {
+            //Add a dummy-children for identifying later in the lazy generation
+            val xItem = generateItem(x)
+            xItem.getChildren.add(dummyPath)
+            root.getChildren.add(xItem)
+          }
+          case x if (!Files.isDirectory(x)) => root.getChildren.add(new CheckBoxTreeItem[Path](x))
+        }
       }
 
     return root
@@ -73,14 +75,17 @@ object ViewFactory {
     val root = new CheckBoxTreeItem[Path](Paths.get(dir))
 
     //generate directory content
-    content.foreach { f =>
-      if (f.isDirectory()) {
-        //Add a dummy-children for identifying later in the lazy generation
-        val xItem = new CheckBoxTreeItem[Path](Paths.get(f.getFilename))
-        xItem.getChildren.add(dummyPath)
-        root.getChildren.add(xItem)
-      } else
-        root.getChildren.add(new CheckBoxTreeItem[Path](Paths.get(f.getFilename)))
+    content.foreach {
+      _ match {
+        case f if (f.isDirectory()) => {
+          //Add a dummy-children for identifying later in the lazy generation
+          val xItem = new CheckBoxTreeItem[Path](Paths.get(f.getFilename))
+          xItem.getChildren.add(dummyPath)
+          root.getChildren.add(xItem)
+        }
+        case f if (f.isFile()) =>
+          root.getChildren.add(new CheckBoxTreeItem[Path](Paths.get(f.getFilename)))
+      }
     }
 
     root.setExpanded(true)
