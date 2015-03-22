@@ -62,6 +62,7 @@ object ViewFactory {
         }
       }
 
+    root.setExpanded(true)
     return root
   }
 
