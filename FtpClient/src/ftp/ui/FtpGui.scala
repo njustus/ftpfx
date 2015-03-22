@@ -58,6 +58,9 @@ class FtpGui extends Application {
   //Logs
   private val txaLog = new TextArea()
   private val txaLoads = new TextArea()
+  private val tabLog = new Tab("Log")
+  private val tabLoads = new Tab("Up-/Downloads")
+
   //Filesystems
   private var localFs: TreeView[Path] = null
   private var remoteFs: TreeView[Path] = null
@@ -117,13 +120,11 @@ class FtpGui extends Application {
     val pane = new TabPane();
     pane.setId("bottomPane")
     pane.setSide(Side.BOTTOM)
-    val loadsTab = new Tab("Up-/Downloads")
-    val logTab = new Tab("Log")
     txaLoads.setEditable(false)
     txaLoads.setEditable(false)
-    loadsTab.setContent(txaLoads)
-    logTab.setContent(txaLog)
-    pane.getTabs.addAll(loadsTab, logTab)
+    tabLoads.setContent(txaLoads)
+    tabLog.setContent(txaLog)
+    pane.getTabs.addAll(tabLoads, tabLog)
 
     root.setBottom(pane)
 
@@ -223,6 +224,8 @@ class FtpGui extends Application {
   private class ReceiveHandler extends Receivable {
     def error(msg: String): Unit = {
       txaLog.appendText(s"ERROR: $msg")
+      tabLog.getTabPane.getSelectionModel.select(tabLog)
+
       /*
        * TODO show an error-box when they released with jdk8_40..
        * => march 2015
@@ -249,16 +252,18 @@ class FtpGui extends Application {
   /**
    * Handles the file transfers.
    */
-  private def shareFiles(t: Transfer, view: TreeView[Path]) = {
+  private def shareFiles(t: Transfer, view: TreeView[Path]) =
     t match {
       case Upload => {
         println("Upload")
+        tabLoads.getTabPane.getSelectionModel.select(tabLoads)
       }
       case Download => {
         println("Download")
+        tabLoads.getTabPane.getSelectionModel.select(tabLoads)
       }
     }
-  }
+
 }
 
 object FtpGui {
