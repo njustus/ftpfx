@@ -20,7 +20,7 @@ case class Upload(override val files: List[Path]) extends Transfer(files) {
 /**
  * Defines download transfer  messages.
  */
-case class Download(override val files: List[FileDescriptor]) extends Transfer(files) {
+case class Download(override val files: List[FileDescriptor], val dest: String) extends Transfer(files) {
 
 }
 /**

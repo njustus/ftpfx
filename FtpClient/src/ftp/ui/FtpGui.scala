@@ -50,6 +50,8 @@ import javafx.scene.control.SelectionMode
  * This class is used for the FX-GUI.
  */
 class FtpGui extends Application {
+  private val targetDirectory = System.getProperty("user.home") + "/Downloads"
+
   private var ftpClient: FtpClient = null
   private val receiver: Receivable = new ReceiveHandler
 
@@ -223,7 +225,7 @@ class FtpGui extends Application {
         genRemoteFs(actualDir, userDir)
         //setup the transfer-manager
         if (trManager != null) trManager ! Exit()
-        trManager = new TransferManager(ftpClient)
+        trManager = new TransferManager(ftpClient, receiver)
         trManager.start()
       } catch {
         case ex: Throwable => handleException(ex)
@@ -288,7 +290,7 @@ class FtpGui extends Application {
     } else if (ev.getSource == btnDownload) {
       val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems.map { _.getValue }.toList
 
-      trManager ! Download(selectedElements)
+      trManager ! Download(selectedElements, targetDirectory)
     }
   }
 }
