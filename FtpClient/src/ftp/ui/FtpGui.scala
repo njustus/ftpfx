@@ -35,6 +35,8 @@ import javafx.scene.control.cell.CheckBoxTreeCell
 import java.nio.file.Path
 import java.nio.file.Paths
 import ftp.client.filesystem.FileDescriptor
+import javafx.stage.DirectoryChooser
+import java.nio.file.Files
 
 /**
  * This class is used for the FX-GUI.
@@ -80,6 +82,19 @@ class FtpGui extends Application {
     scene.getStylesheets().add(getClass.getResource("style/FtpGui.css").toExternalForm())
 
     //Menues
+    //File menue
+    val chLocalMnItem = new MenuItem("Set local root..")
+    val chRemoteMnItem = new MenuItem("Set remote root..")
+    val exitMnItem = new MenuItem("Exit")
+    chLocalMnItem.setOnAction((ev: ActionEvent) => {
+      val chooser = new DirectoryChooser()
+      chooser.setTitle("Set local root directory")
+      val path = chooser.showDialog(primStage).toPath()
+      localFs.setRoot(ViewFactory.newLazyView(path))
+    })
+    chRemoteMnItem.setOnAction((ev: ActionEvent) => ???)
+    exitMnItem.setOnAction((ev: ActionEvent) => this.stop())
+    fileMenue.getItems.addAll(chLocalMnItem, chRemoteMnItem, exitMnItem)
     //Help menue
     val clientInfoMnItem = new MenuItem("Client information")
     val serverInfoMnItem = new MenuItem("Server information")
@@ -177,7 +192,7 @@ class FtpGui extends Application {
     remoteFs.setRoot(ViewFactory.newSubView(dir, content))
 
   /*
-   * ------------- EventHandlers -------------------- 
+   * ------------- EventHandlers --------------------
    * Each button gets an own function
    * -----------------------------------------------
    */
