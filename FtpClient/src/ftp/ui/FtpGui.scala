@@ -41,6 +41,7 @@ import ftp.client.sharemanager.TransferManager
 import ftp.client.sharemanager.Exit
 import ftp.client.sharemanager.Download
 import ftp.client.sharemanager.Upload
+import javafx.collections.ObservableList
 
 /**
  * This class is used for the FX-GUI.
@@ -271,10 +272,16 @@ class FtpGui extends Application {
    * Handles the file transfers.
    */
   private def shareFiles(ev: ActionEvent) = {
+
     if (ev.getSource == btnUpload) {
       val selectedElements = this.localFs.getSelectionModel.getSelectedItems
-    } else if (ev.getSource == btnDownload) {
+      //TODO cast the java.ObservableList to a scala list
 
+      println("upload pressed")
+    } else if (ev.getSource == btnDownload) {
+      val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems
+
+      println("download pressed")
     }
   }
 }
