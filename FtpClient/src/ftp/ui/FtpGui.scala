@@ -96,8 +96,8 @@ class FtpGui extends Application {
     btnConnect.setOnAction((ev: ActionEvent) => connect())
     btnDisconnect.setId("red")
     btnDisconnect.setOnAction((ev: ActionEvent) => if (ftpClient != null) ftpClient.disconnect())
-    btnUpload.setOnAction((ev: ActionEvent) => shareFiles(Upload, localFs))
-    btnDownload.setOnAction((ev: ActionEvent) => shareFiles(Download, localFs))
+    btnUpload.setOnAction((ev: ActionEvent) => shareFiles(Upload(), localFs))
+    btnDownload.setOnAction((ev: ActionEvent) => shareFiles(Download(), localFs))
 
     txtPort.setMaxWidth(50)
 
