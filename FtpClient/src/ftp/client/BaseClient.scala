@@ -13,6 +13,7 @@ import ftp.response.Receivable
 import ftp.client.filesystem.FileDescriptor
 import ftp.client.filesystem.RemoteFile
 import scala.util.Properties
+import scala.annotation.tailrec
 
 /**
  * Defines a simple ftpclient.
@@ -184,10 +185,22 @@ class BaseClient private[client] (private val socket: Socket, private val output
 
     var buffer = new Array[Byte](BUFFER_SIZE)
     var length: Int = 0
+
+    //using tail-recursion instead of loops...
+    @tailrec
+    def writeBytes(): Unit = if (length != -1) {
+      length = fileStream.read(buffer)
+      outputStream.write(buffer)
+      writeBytes()
+    }
+    writeBytes()
+    /*
     while (length != -1) {
       length = fileStream.read(buffer)
       outputStream.write(buffer)
     }
+    */
+
     outputStream.flush
     outputStream.close
     fileStream.close
@@ -221,10 +234,20 @@ class BaseClient private[client] (private val socket: Socket, private val output
 
     var length: Int = 0
 
+    //using tail-recursion instead of loops...
+    @tailrec
+    def readBytes(): Unit = if (length != -1) {
+      length = incomingStream.read()
+      localStream.write(length)
+      readBytes()
+    }
+    readBytes()
+    /*
     while (length != -1) {
       length = incomingStream.read()
       localStream.write(length)
     }
+    */
 
     localStream.flush
     localStream.close
