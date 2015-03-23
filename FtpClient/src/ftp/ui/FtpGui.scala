@@ -42,6 +42,9 @@ import ftp.client.sharemanager.Exit
 import ftp.client.sharemanager.Download
 import ftp.client.sharemanager.Upload
 import javafx.collections.ObservableList
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import javafx.scene.control.SelectionMode
 
 /**
  * This class is used for the FX-GUI.
@@ -179,13 +182,15 @@ class FtpGui extends Application {
     val next = Paths.get(System.getProperty("user.home"))
     val root = ViewFactory.newLazyView(next)
     val view = new TreeView[Path](root)
-    view.setCellFactory(CheckBoxTreeCell.forTreeView())
+
+    view.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     return view
   }
 
   private def genRemoteFs(): TreeView[FileDescriptor] = {
     val tree = new TreeView[FileDescriptor](new CheckBoxTreeItem[FileDescriptor](new RemoteFile("Not Connected.")))
-    tree.setCellFactory(CheckBoxTreeCell.forTreeView())
+
+    tree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     return tree
   }
 
@@ -274,10 +279,9 @@ class FtpGui extends Application {
   private def shareFiles(ev: ActionEvent) = {
 
     if (ev.getSource == btnUpload) {
-      val selectedElements = this.localFs.getSelectionModel.getSelectedItems
-      //TODO cast the java.ObservableList to a scala list
+      val selectedElements = this.localFs.getSelectionModel.getSelectedItems.map { _.getValue }.toList
 
-      println("upload pressed")
+      trManager ! Upload(selectedElements)
     } else if (ev.getSource == btnDownload) {
       val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems
 
