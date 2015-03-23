@@ -172,7 +172,7 @@ class BaseClient private[client] (private val socket: Socket, private val output
     val file = Paths.get(filename)
     val fileStream = Files.newInputStream(file)
 
-    if (!file.toFile().exists()) {
+    if (!Files.exists(file)) {
       lg.newError("File " + file.toString() + " doesn't exist")
       return false;
     }
