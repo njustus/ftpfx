@@ -89,8 +89,11 @@ class FtpGui extends Application {
     chLocalMnItem.setOnAction((ev: ActionEvent) => {
       val chooser = new DirectoryChooser()
       chooser.setTitle("Set local root directory")
-      val path = chooser.showDialog(primStage).toPath()
-      localFs.setRoot(ViewFactory.newLazyView(path))
+      val file = chooser.showDialog(primStage)
+      if (file != null) {
+        val path = file.toPath()
+        localFs.setRoot(ViewFactory.newLazyView(path))
+      }
     })
     chRemoteMnItem.setOnAction((ev: ActionEvent) => ???)
     exitMnItem.setOnAction((ev: ActionEvent) => this.stop())
