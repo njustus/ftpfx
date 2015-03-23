@@ -107,7 +107,7 @@ class FtpGui extends Application {
       }
     })
     chRemoteMnItem.setOnAction((ev: ActionEvent) => ???)
-    exitMnItem.setOnAction((ev: ActionEvent) => this.stop())
+    exitMnItem.setOnAction((ev: ActionEvent) => primStage.close())
     fileMenue.getItems.addAll(chLocalMnItem, chRemoteMnItem, exitMnItem)
     //Help menue
     val clientInfoMnItem = new MenuItem("Client information")
@@ -180,7 +180,7 @@ class FtpGui extends Application {
     //download directory
     val downloadPane = new HBox()
     val chooseView = Paths.get("Choose..")
-    val l: ObservableList[Path] = FXCollections.observableArrayList(Paths.get(System.getProperty("user.home")), Paths.get("/"), chooseView);
+    val l: ObservableList[Path] = FXCollections.observableArrayList(Paths.get(System.getProperty("user.home") + "/Downloads"), Paths.get(System.getProperty("user.home")), Paths.get("/"), chooseView);
     downloadPane.setId("downloadPane")
     downloadDir.setItems(l)
     downloadDir.getSelectionModel().selectFirst()
