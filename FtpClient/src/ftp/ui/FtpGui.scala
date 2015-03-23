@@ -80,7 +80,7 @@ class FtpGui extends Application {
   private val btnDownload = new Button("Download")
 
   //transfermanager for the up-/downloads
-  private val trManager = new TransferManager(ftpClient)
+  private var trManager: TransferManager = null
 
   override def start(primStage: Stage) = {
     val vboxContainer = new VBox()
@@ -145,15 +145,14 @@ class FtpGui extends Application {
     primStage.setTitle("NJ's FTP")
     primStage.setScene(scene)
 
-    trManager.start() //start the transfer-manager
-
     primStage.show()
   }
   /**
    * Method invoked when the last window is closed or the application is stopped.
    */
   override def stop() = {
-    trManager ! Exit() //stop the actor
+    if (trManager != null)
+      trManager ! Exit() //stop the actor
   }
 
   private def genFileSystemView(): Pane = {
@@ -201,7 +200,7 @@ class FtpGui extends Application {
     remoteFs.setRoot(ViewFactory.newSubView(dir, content))
 
   /*
-   * ------------- EventHandlers -------------------- 
+   * ------------- EventHandlers --------------------
    * Each button gets an own function
    * -----------------------------------------------
    */
@@ -222,6 +221,9 @@ class FtpGui extends Application {
         actualDir = ftpClient.pwd()
         userDir = ftpClient.ls()
         genRemoteFs(actualDir, userDir)
+        //setup the transfer-manager
+        trManager = new TransferManager(ftpClient)
+        trManager.start()
       } catch {
         case ex: Throwable => handleException(ex)
       }

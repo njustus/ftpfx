@@ -13,14 +13,15 @@ import ftp.client.FtpClient
  * @param ftpClient - the  FtpClient-Connection
  */
 class TransferManager(private val ftpClient: FtpClient) extends Actor {
-  def act(): Unit = {
+  def act(): Unit = loop {
     react {
       case msg: Upload if (ftpClient != null) => {
+        println("upload")
         msg.files.map(x => x.getFileName()).foreach { x => println(x) }
       }
       case msg: Download if (ftpClient != null) => {
-        if (ftpClient != null)
-          msg.files.map(x => x.getFilename()).foreach { x => println(x) }
+        println("download")
+        msg.files.map(x => x.getFilename()).foreach { x => println(x) }
       }
       case msg: Exit => this.exit()
     }
