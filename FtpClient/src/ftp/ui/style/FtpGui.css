@@ -41,12 +41,16 @@
 	-fx-hgap: 10;
 	-fx-vgap: 10;
 }
+#downloadPane {
+	-fx-spacing: 10;
+	-fx-alignment: center-left;
+}
+#centeredView {
+	-fx-padding: 5, 0, 10, 0;
+}
 #bottomPane {
 	/*TODO set opacity of the tab-choosing-bg to 0% */
-
 }
-
-
 #green  {
 	-fx-background-color: linear-gradient(#f0ff35, #a9ff00),
 		radial-gradient(center 50% -40%, radius 200%, #b8ee36 45%, #80c800 50%);
