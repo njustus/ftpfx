@@ -14,6 +14,7 @@ import javafx.event.ActionEvent
 import javafx.scene.control.CheckBoxTreeItem.TreeModificationEvent
 import javafx.beans.property.BooleanProperty
 import ftp.client.filesystem.FileDescriptor
+import ftp.client.filesystem.RemoteFile
 
 object ViewFactory {
 
@@ -72,20 +73,20 @@ object ViewFactory {
    * @param dir the actual root-directory
    * @param content the content of the directory
    */
-  def newSubView(dir: String, content: List[FileDescriptor]): CheckBoxTreeItem[Path] = {
-    val root = new CheckBoxTreeItem[Path](Paths.get(dir))
-
+  def newSubView(dir: String, content: List[FileDescriptor]): CheckBoxTreeItem[FileDescriptor] = {
+    val root = new CheckBoxTreeItem[FileDescriptor](new RemoteFile(dir, true))
+    val dummyPath = new CheckBoxTreeItem[FileDescriptor](new RemoteFile(".", false))
     //generate directory content
     content.foreach {
       _ match {
         case f if (f.isDirectory()) => {
           //Add a dummy-children for identifying later in the lazy generation
-          val xItem = new CheckBoxTreeItem[Path](Paths.get(f.getFilename))
+          val xItem = new CheckBoxTreeItem[FileDescriptor](f)
           xItem.getChildren.add(dummyPath)
           root.getChildren.add(xItem)
         }
         case f if (f.isFile()) =>
-          root.getChildren.add(new CheckBoxTreeItem[Path](Paths.get(f.getFilename)))
+          root.getChildren.add(new CheckBoxTreeItem[FileDescriptor](f))
       }
     }
 

@@ -35,6 +35,10 @@ import javafx.scene.control.cell.CheckBoxTreeCell
 import java.nio.file.Path
 import java.nio.file.Paths
 import ftp.client.filesystem.FileDescriptor
+import ftp.client.sharemanager.Transfer
+import ftp.client.filesystem.RemoteFile
+import ftp.client.sharemanager.TransferManager
+import ftp.client.sharemanager.Exit
 
 /**
  * This class is used for the FX-GUI.
@@ -63,11 +67,14 @@ class FtpGui extends Application {
 
   //Filesystems
   private var localFs: TreeView[Path] = null
-  private var remoteFs: TreeView[Path] = null
+  private var remoteFs: TreeView[FileDescriptor] = null
 
   //Down-/Uploads
   private val btnUpload = new Button("Upload")
   private val btnDownload = new Button("Download")
+
+  //transfermanager for the up-/downloads
+  private val trManager = new TransferManager(ftpClient)
 
   override def start(primStage: Stage) = {
     val vboxContainer = new VBox()
@@ -96,8 +103,8 @@ class FtpGui extends Application {
     btnConnect.setOnAction((ev: ActionEvent) => connect())
     btnDisconnect.setId("red")
     btnDisconnect.setOnAction((ev: ActionEvent) => if (ftpClient != null) ftpClient.disconnect())
-    btnUpload.setOnAction((ev: ActionEvent) => shareFiles(Upload(), localFs))
-    btnDownload.setOnAction((ev: ActionEvent) => shareFiles(Download(), localFs))
+    btnUpload.setOnAction((ev: ActionEvent) => shareFiles(ev))
+    btnDownload.setOnAction((ev: ActionEvent) => shareFiles(ev))
 
     txtPort.setMaxWidth(50)
 
@@ -131,7 +138,16 @@ class FtpGui extends Application {
     vboxContainer.getChildren.addAll(menueBar, root)
     primStage.setTitle("NJ's FTP")
     primStage.setScene(scene)
+
+    trManager.start() //start the transfer-manager
+
     primStage.show()
+  }
+  /**
+   * Method invoked when the last window is closed or the application is stopped.
+   */
+  override def stop() = {
+    trManager ! Exit() //stop the actor
   }
 
   private def genFileSystemView(): Pane = {
@@ -164,8 +180,8 @@ class FtpGui extends Application {
     return view
   }
 
-  private def genRemoteFs(): TreeView[Path] = {
-    val tree = new TreeView[Path](new CheckBoxTreeItem[Path](Paths.get("Not Connected.")))
+  private def genRemoteFs(): TreeView[FileDescriptor] = {
+    val tree = new TreeView[FileDescriptor](new CheckBoxTreeItem[FileDescriptor](new RemoteFile("Not Connected.")))
     tree.setCellFactory(CheckBoxTreeCell.forTreeView())
     return tree
   }
@@ -252,18 +268,13 @@ class FtpGui extends Application {
   /**
    * Handles the file transfers.
    */
-  private def shareFiles(t: Transfer, view: TreeView[Path]) =
-    t match {
-      case Upload => {
-        println("Upload")
-        tabLoads.getTabPane.getSelectionModel.select(tabLoads)
-      }
-      case Download => {
-        println("Download")
-        tabLoads.getTabPane.getSelectionModel.select(tabLoads)
-      }
-    }
+  private def shareFiles(ev: ActionEvent) = {
+    if (ev.getSource == btnUpload) {
+      val selectedElements = this.localFs.getSelectionModel.getSelectedItems
+    } else if (ev.getSource == btnDownload) {
 
+    }
+  }
 }
 
 object FtpGui {

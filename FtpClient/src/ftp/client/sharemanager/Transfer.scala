@@ -5,7 +5,7 @@ import java.nio.file.Path
 import ftp.client.filesystem.FileDescriptor
 
 /**
- * Defines either upload or download.
+ * Defines either upload or download messages.
  */
 abstract class Transfer[T](val files: List[T]) {
 
