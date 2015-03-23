@@ -222,6 +222,7 @@ class FtpGui extends Application {
         userDir = ftpClient.ls()
         genRemoteFs(actualDir, userDir)
         //setup the transfer-manager
+        if (trManager != null) trManager ! Exit()
         trManager = new TransferManager(ftpClient)
         trManager.start()
       } catch {
