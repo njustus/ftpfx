@@ -283,9 +283,9 @@ class FtpGui extends Application {
 
       trManager ! Upload(selectedElements)
     } else if (ev.getSource == btnDownload) {
-      val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems
+      val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems.map { _.getValue }.toList
 
-      println("download pressed")
+      trManager ! Download(selectedElements)
     }
   }
 }
