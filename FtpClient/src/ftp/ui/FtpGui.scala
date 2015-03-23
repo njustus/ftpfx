@@ -39,6 +39,8 @@ import ftp.client.sharemanager.Transfer
 import ftp.client.filesystem.RemoteFile
 import ftp.client.sharemanager.TransferManager
 import ftp.client.sharemanager.Exit
+import ftp.client.sharemanager.Download
+import ftp.client.sharemanager.Upload
 
 /**
  * This class is used for the FX-GUI.
