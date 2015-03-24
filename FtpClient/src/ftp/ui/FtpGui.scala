@@ -143,6 +143,8 @@ class FtpGui extends Application {
     btnDisconnect.setOnAction((ev: ActionEvent) => if (ftpClient != null) ftpClient.disconnect())
     btnUpload.setOnAction((ev: ActionEvent) => shareFiles(ev))
     btnDownload.setOnAction((ev: ActionEvent) => shareFiles(ev))
+    btnUpload.setId("upload-btn")
+    btnDownload.setId("download-btn")
 
     txtPort.setMaxWidth(50)
 
@@ -342,7 +344,7 @@ class FtpGui extends Application {
     }
     def newMsg(msg: String): Unit = Platform.runLater(() => { txaLog.appendText(msg + "\n") })
     def status(msg: String): Unit = Platform.runLater(() => {
-      if (msg.startsWith("Download") || msg.startsWith("Upload")) txaLoads.appendText(msg + "\n")
+      if (msg.startsWith("Download") || msg.startsWith("Upload:")) txaLoads.appendText(msg + "\n")
       else txaLog.appendText(msg + "\n")
     })
   } //class ReceiveHandler

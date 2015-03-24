@@ -69,3 +69,14 @@
 #bold-text {
 	-fx-font-weight: bold;
 }
+
+#upload-btn {
+	-fx-font-weight: bold;
+	-fx-font-size: 11pt;
+	-fx-font-family:"sans-serif";
+}
+#download-btn {
+	-fx-font-weight: bold;
+	-fx-font-size: 11pt;
+	-fx-font-family:"sans-serif";	
+}
