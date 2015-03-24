@@ -16,12 +16,13 @@ object ConsoleUi {
   def main(args: Array[String]): Unit = {
     val rec = new ConsoleReceiver
     val bs = ClientFactory.newBaseClient("localhost", rec)
+    bs.connect("nico", "fr34kl1k3")
     bs.cd("/home/nico/Downloads")
     bs.pwd()
 
-    //bs.sendFile("/home/nico/Bilder/TLOU/Ellie-Winter-Yuiphone-The-Last-Of-Us-1920x1080-HD-Wallpapers.jpg")
+    bs.sendFile("/home/nico/Bilder/TLOU/Ellie-Winter-Yuiphone-The-Last-Of-Us-1920x1080-HD-Wallpapers.jpg")
     bs.ls
-    //bs.receiveFile("/home/nico/Downloads/muster-lebenslauf.pdf", "/home/nico/Downloads/muster-lebenslauf.pdf")
+    bs.receiveFile("/home/nico/Downloads/muster-lebenslauf.pdf", "/home/nico/Dokumente/muster-lebenslauf.pdf")
     bs.disconnect()
   }
 }

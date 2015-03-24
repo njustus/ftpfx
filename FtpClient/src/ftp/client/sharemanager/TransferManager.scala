@@ -33,7 +33,7 @@ class TransferManager(private val ftpClient: FtpClient, private val rc: Receivab
         msg.getFiles.foreach {
           _ match {
             case x if (x.isDirectory()) => rc.status("Skipping directory: " + x + ". Can't receive directorys.")
-            case x if (x.isFile())      => ftpClient.receiveFile(x.getFilename, msg.dest)
+            case x if (x.isFile())      => ftpClient.receiveFile(x.getFilename, msg.dest + "/" + x.getFilename())
             case _                      => rc.error("Skipping: unknown file format.")
           }
         }

@@ -29,6 +29,7 @@ import ftp.client.ClientFactory
 import ftp.client.FtpClient
 import ftp.response.Receivable
 import ftp.ui.FxEventHandlerImplicits._
+import ftp.util.ImplicitConversions._
 import javafx.scene.layout.VBox
 import javafx.scene.control.CheckBoxTreeItem
 import javafx.scene.control.cell.CheckBoxTreeCell
@@ -45,6 +46,7 @@ import javafx.collections.ObservableList
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import javafx.scene.control.SelectionMode
+import javafx.application.Platform
 
 /**
  * This class is used for the FX-GUI.
@@ -252,8 +254,10 @@ class FtpGui extends Application {
   /*Handler for the logs*/
   private class ReceiveHandler extends Receivable {
     def error(msg: String): Unit = {
-      txaLog.appendText(s"ERROR: $msg")
-      tabLog.getTabPane.getSelectionModel.select(tabLog)
+      Platform.runLater(() => {
+        txaLog.appendText(s"ERROR: $msg")
+        tabLog.getTabPane.getSelectionModel.select(tabLog)
+      })
 
       /*
        * TODO show an error-box when they released with jdk8_40..
@@ -261,8 +265,8 @@ class FtpGui extends Application {
        * alternative implement them on your own
        */
     }
-    def newMsg(msg: String): Unit = txaLog.appendText(msg)
-    def status(msg: String): Unit = txaLog.appendText(msg)
+    def newMsg(msg: String): Unit = Platform.runLater(() => { txaLog.appendText(msg) })
+    def status(msg: String): Unit = Platform.runLater(() => { txaLog.appendText(msg) })
   } //class ReceiveHandler
 
   private def showServerInformation() = {
