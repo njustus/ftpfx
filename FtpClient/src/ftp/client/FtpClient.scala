@@ -32,7 +32,6 @@ trait FtpClient {
    */
   def cd(path: String): String
   def changeDirectory(path: String): String = cd(path)
-
   /**
    * Lists the directory content.
    */
