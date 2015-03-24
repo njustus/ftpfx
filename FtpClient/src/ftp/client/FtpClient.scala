@@ -92,7 +92,8 @@ trait FtpClient {
    * <P>Uses: MKD <path></P>
    */
   def mkdir(path: String): Boolean
-
+  def createDirectory(path: String) = mkdir(_)
+  def makeDirectory(path: String) = mkdir(_)
   /**
    * Stops the actual process and quits it.
    */
