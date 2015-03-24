@@ -186,6 +186,13 @@ class FtpGui extends Application {
       trManager ! Exit() //stop the actor
   }
 
+  /**
+   * Generates the centered panels with the local and remote filesystem-treeviews.
+   * Also adds:
+   *  the directory-chooser for the downloads
+   *  the upload-button
+   *  the download-button
+   */
   private def genFileSystemView(): Pane = {
     val fsRoot = new GridPane()
     fsRoot.setId("fsGrid")
@@ -234,6 +241,10 @@ class FtpGui extends Application {
     return text
   }
 
+  /**
+   * Generates the view for the local filesystem.
+   * This method uses the factory for generating the view.
+   */
   private def genLocalFs(): TreeView[Path] = {
     val next = Paths.get(System.getProperty("user.home"))
     val root = ViewFactory.newLazyView(next)
@@ -243,6 +254,11 @@ class FtpGui extends Application {
     return view
   }
 
+  /**
+   * Generates the standard-view for the remote filesystem.
+   * This method is normally only used at start-time for generating a TreeView.
+   * This method uses the factory for generating the view.
+   */
   private def genRemoteFs(): TreeView[FileDescriptor] = {
     val tree = new TreeView[FileDescriptor](new CheckBoxTreeItem[FileDescriptor](new RemoteFile("Not Connected.")))
 
@@ -251,17 +267,20 @@ class FtpGui extends Application {
   }
 
   /**
-   * Generates the new initialized remote-view.
+   * Generates the new remote-view after login and also after changing the directorys.
+   * This method is at runtime used.
    */
   private def genRemoteFs(dir: String, content: List[FileDescriptor]) =
     remoteFs.setRoot(ViewFactory.newSubView(dir, content))
 
   /*
    * ------------- EventHandlers --------------------
-   * Each button gets an own function
    * -----------------------------------------------
    */
 
+  /**
+   * Connects the client by using the top-textfields.
+   */
   private def connect() = {
     val servername = txtServer.getText
     val port = txtPort.getText.toInt
@@ -291,7 +310,7 @@ class FtpGui extends Application {
   } //connect
 
   /**
-   * Handler for exceptions
+   * Global-Handler for exceptions
    */
   private def handleException(e: Throwable) = {
     /**
@@ -305,7 +324,9 @@ class FtpGui extends Application {
     }
   }
 
-  /*Handler for the logs*/
+  /**
+   * Handler for the logs.
+   */
   private class ReceiveHandler extends Receivable {
     def error(msg: String): Unit = {
       Platform.runLater(() => {
