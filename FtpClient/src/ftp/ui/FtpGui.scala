@@ -153,6 +153,8 @@ class FtpGui extends Application {
     txaLoads.setEditable(false)
     tabLoads.setContent(txaLoads)
     tabLog.setContent(txaLog)
+    tabLoads.setClosable(false)
+    tabLog.setClosable(false)
     pane.getTabs.addAll(tabLoads, tabLog)
 
     root.setBottom(pane)
