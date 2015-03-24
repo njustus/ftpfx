@@ -180,7 +180,7 @@ class FtpGui extends Application {
     //download directory
     val downloadPane = new HBox()
     val chooseView = Paths.get("Choose..")
-    val l: ObservableList[Path] = FXCollections.observableArrayList(Paths.get(System.getProperty("user.home") + "/Downloads"), Paths.get(System.getProperty("user.home")), Paths.get("/"), chooseView);
+    val l: ObservableList[Path] = FXCollections.observableArrayList(Paths.get(System.getProperty("user.home") + "/Downloads"), Paths.get(System.getProperty("user.home")), chooseView);
     downloadPane.setId("downloadPane")
     downloadDir.setItems(l)
     downloadDir.getSelectionModel().selectFirst()
@@ -297,7 +297,10 @@ class FtpGui extends Application {
 
   private def showClientInformation() = {
     //TODO show an information-dialog
-    txaLoads.appendText(ftpClient.getClientInformation());
+    if (ftpClient != null)
+      receiver.status(ftpClient.getClientInformation());
+    else
+      receiver.error("Please connect to the server first!")
   }
 
   private def showAbout() = {
