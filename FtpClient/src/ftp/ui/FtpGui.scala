@@ -309,7 +309,7 @@ class FtpGui extends Application {
   private class ReceiveHandler extends Receivable {
     def error(msg: String): Unit = {
       Platform.runLater(() => {
-        txaLog.appendText(s"ERROR: $msg")
+        txaLog.appendText(s"ERROR: $msg\n")
         tabLog.getTabPane.getSelectionModel.select(tabLog)
       })
 
@@ -319,8 +319,11 @@ class FtpGui extends Application {
        * alternative implement them on your own
        */
     }
-    def newMsg(msg: String): Unit = Platform.runLater(() => { txaLog.appendText(msg) })
-    def status(msg: String): Unit = Platform.runLater(() => { txaLog.appendText(msg) })
+    def newMsg(msg: String): Unit = Platform.runLater(() => { txaLog.appendText(msg + "\n") })
+    def status(msg: String): Unit = Platform.runLater(() => {
+      if (msg.startsWith("Download") || msg.startsWith("Upload")) txaLoads.appendText(msg + "\n")
+      else txaLog.appendText(msg + "\n")
+    })
   } //class ReceiveHandler
 
   private def showServerInformation() = {
