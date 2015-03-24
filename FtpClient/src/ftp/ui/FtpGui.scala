@@ -47,6 +47,14 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import javafx.scene.control.SelectionMode
 import javafx.application.Platform
+import javafx.stage.DirectoryChooser
+import java.nio.file.Files
+import javafx.scene.control.ComboBox
+import javafx.collections.ObservableList
+import javafx.collections.FXCollections
+import javafx.scene.layout.HBox
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * This class is used for the FX-GUI.
@@ -57,6 +65,7 @@ class FtpGui extends Application {
   private var ftpClient: FtpClient = null
   private val receiver: Receivable = new ReceiveHandler
 
+  private var primaryStage: Stage = null
   //menue
   private val menueBar = new MenuBar()
   private val fileMenue = new Menu("File")
@@ -82,11 +91,13 @@ class FtpGui extends Application {
   //Down-/Uploads
   private val btnUpload = new Button("Upload")
   private val btnDownload = new Button("Download")
-
   //transfermanager for the up-/downloads
   private var trManager: TransferManager = null
+  //Download-directory
+  private val downloadDir = new ComboBox[Path]()
 
   override def start(primStage: Stage) = {
+    primaryStage = primStage
     val vboxContainer = new VBox()
     val root = new BorderPane()
     root.setId("rootPane")
@@ -97,6 +108,22 @@ class FtpGui extends Application {
     scene.getStylesheets().add(getClass.getResource("style/FtpGui.css").toExternalForm())
 
     //Menues
+    //File menue
+    val chLocalMnItem = new MenuItem("Set local root..")
+    val chRemoteMnItem = new MenuItem("Set remote root..")
+    val exitMnItem = new MenuItem("Exit")
+    chLocalMnItem.setOnAction((ev: ActionEvent) => {
+      val chooser = new DirectoryChooser()
+      chooser.setTitle("Set local root directory")
+      val file = chooser.showDialog(primStage)
+      if (file != null) {
+        val path = file.toPath()
+        localFs.setRoot(ViewFactory.newLazyView(path))
+      }
+    })
+    chRemoteMnItem.setOnAction((ev: ActionEvent) => ???)
+    exitMnItem.setOnAction((ev: ActionEvent) => primStage.close())
+    fileMenue.getItems.addAll(chLocalMnItem, chRemoteMnItem, exitMnItem)
     //Help menue
     val clientInfoMnItem = new MenuItem("Client information")
     val serverInfoMnItem = new MenuItem("Server information")
@@ -141,6 +168,8 @@ class FtpGui extends Application {
     txaLoads.setEditable(false)
     tabLoads.setContent(txaLoads)
     tabLog.setContent(txaLog)
+    tabLoads.setClosable(false)
+    tabLog.setClosable(false)
     pane.getTabs.addAll(tabLoads, tabLog)
 
     root.setBottom(pane)
@@ -172,7 +201,33 @@ class FtpGui extends Application {
 
     fsRoot.add(localFs, 0, 1)
     fsRoot.add(remoteFs, 1, 1)
-    return fsRoot
+
+    //download directory
+    val downloadPane = new HBox()
+    val chooseView = Paths.get("Choose..")
+    val l: ObservableList[Path] = FXCollections.observableArrayList(Paths.get(System.getProperty("user.home") + "/Downloads"), Paths.get(System.getProperty("user.home")), chooseView);
+    downloadPane.setId("downloadPane")
+    downloadDir.setItems(l)
+    downloadDir.getSelectionModel().selectFirst()
+    downloadDir.setMinWidth(150)
+    //handler for showing the directory-chooser
+    downloadDir.setOnAction((ev: ActionEvent) => if (downloadDir.getSelectionModel.getSelectedItem == chooseView) {
+      val chooser = new DirectoryChooser()
+      chooser.setTitle("Set download directory")
+      val file = chooser.showDialog(primaryStage)
+      if (file != null) {
+        val path = file.toPath()
+        downloadDir.getItems.add(0, path)
+        downloadDir.getSelectionModel().selectFirst()
+      }
+    })
+    downloadPane.getChildren.addAll(newBoldText("Download directory:"), downloadDir)
+
+    //only needed for setup the download-directory below the fs-view
+    val root = new VBox()
+    root.setId("centeredView")
+    root.getChildren.addAll(fsRoot, downloadPane)
+    return root
   }
 
   private def newBoldText(s: String): Text = {
@@ -275,7 +330,10 @@ class FtpGui extends Application {
 
   private def showClientInformation() = {
     //TODO show an information-dialog
-    txaLoads.appendText(ftpClient.getClientInformation());
+    if (ftpClient != null)
+      receiver.status(ftpClient.getClientInformation());
+    else
+      receiver.error("Please connect to the server first!")
   }
 
   private def showAbout() = {
