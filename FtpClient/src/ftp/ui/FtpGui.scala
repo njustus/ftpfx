@@ -87,6 +87,7 @@ class FtpGui extends Application {
   private var remoteFs: TreeView[FileDescriptor] = null
 
   //Down-/Uploads
+  //added in genFileSystemView() together with the download-directory-chooser
   private val btnUpload = new Button("Upload")
   private val btnDownload = new Button("Download")
   //transfermanager for the up-/downloads
@@ -119,9 +120,11 @@ class FtpGui extends Application {
         localFs.setRoot(ViewFactory.newLazyView(path))
       }
     })
+
     chRemoteMnItem.setOnAction((ev: ActionEvent) => ???)
     exitMnItem.setOnAction((ev: ActionEvent) => primStage.close())
     fileMenue.getItems.addAll(chLocalMnItem, chRemoteMnItem, exitMnItem)
+
     //Help menue
     val clientInfoMnItem = new MenuItem("Client information")
     val serverInfoMnItem = new MenuItem("Server information")
@@ -153,8 +156,6 @@ class FtpGui extends Application {
     top.add(txtPassword, 3, 1)
     top.add(btnConnect, 4, 1)
     top.add(btnDisconnect, 4, 0)
-    top.add(btnUpload, 5, 0)
-    top.add(btnDownload, 5, 1)
 
     root.setCenter(genFileSystemView())
 
@@ -171,11 +172,10 @@ class FtpGui extends Application {
     pane.getTabs.addAll(tabLoads, tabLog)
 
     root.setBottom(pane)
-
     vboxContainer.getChildren.addAll(menueBar, root)
     primStage.setTitle("NJ's FTP")
     primStage.setScene(scene)
-
+    primStage.sizeToScene()
     primStage.show()
   }
   /**
@@ -219,7 +219,7 @@ class FtpGui extends Application {
         downloadDir.getSelectionModel().selectFirst()
       }
     })
-    downloadPane.getChildren.addAll(newBoldText("Download directory:"), downloadDir)
+    downloadPane.getChildren.addAll(newBoldText("Download directory:"), downloadDir, btnUpload, btnDownload)
 
     //only needed for setup the download-directory below the fs-view
     val root = new VBox()
