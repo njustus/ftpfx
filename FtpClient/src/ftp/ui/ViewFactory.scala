@@ -23,9 +23,10 @@ object ViewFactory {
 
   /**
    * Generates a new TreeView from the given file.
+   * This method shouldn't be used anymore. The lazy-view-generation (newLazyView()) is better.
    * @param file the file
    */
-  def newView(file: Path): CheckBoxTreeItem[Path] = {
+  @deprecated def newView(file: Path): CheckBoxTreeItem[Path] = {
     val root = new CheckBoxTreeItem[Path](file)
 
     val fileWalker = new GenerateTree(root)
