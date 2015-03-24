@@ -53,8 +53,6 @@ import javafx.scene.control.ComboBox
 import javafx.collections.ObservableList
 import javafx.collections.FXCollections
 import javafx.scene.layout.HBox
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
 
 /**
  * This class is used for the FX-GUI.
