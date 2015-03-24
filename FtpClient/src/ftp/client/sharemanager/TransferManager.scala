@@ -18,7 +18,6 @@ class TransferManager(private val ftpClient: FtpClient, private val rc: Receivab
   def act(): Unit = loop {
     react {
       case msg: Upload if (ftpClient != null) => {
-        println("upload")
         msg.getFiles.foreach {
           _ match {
             case x if (Files.isDirectory(x))    => rc.status("Skipping directory: " + x + ". Can't send directorys.")
@@ -29,7 +28,6 @@ class TransferManager(private val ftpClient: FtpClient, private val rc: Receivab
         }
       }
       case msg: Download if (ftpClient != null) => {
-        println("download")
         msg.getFiles.foreach {
           _ match {
             case x if (x.isDirectory()) => rc.status("Skipping directory: " + x + ". Can't receive directorys.")

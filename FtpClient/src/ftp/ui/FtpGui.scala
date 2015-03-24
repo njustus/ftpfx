@@ -60,8 +60,6 @@ import scala.collection.JavaConverters._
  * This class is used for the FX-GUI.
  */
 class FtpGui extends Application {
-  private val targetDirectory = System.getProperty("user.home") + "/Downloads"
-
   private var ftpClient: FtpClient = null
   private val receiver: Receivable = new ReceiveHandler
 
@@ -273,6 +271,7 @@ class FtpGui extends Application {
     var actualDir = ""
 
     if (servername.isEmpty() || txtPort.getText.isEmpty()) receiver.error("Specify Server & Port.")
+    else if (username.isEmpty() || password.isEmpty()) receiver.error("Specify username/password.")
     else {
       try {
         ftpClient = ClientFactory.newBaseClient(servername, port, receiver)
@@ -352,7 +351,7 @@ class FtpGui extends Application {
     } else if (ev.getSource == btnDownload) {
       val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems.map { _.getValue }.toList
 
-      trManager ! Download(selectedElements, targetDirectory)
+      trManager ! Download(selectedElements, downloadDir.getSelectionModel.getSelectedItem.toAbsolutePath().toString())
     }
   }
 }
