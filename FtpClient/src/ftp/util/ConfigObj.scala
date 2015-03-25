@@ -26,7 +26,7 @@ object ConfigObj {
       if (!checkConfig(conf))
         DefaultValues.defaultConfKeys.foreach { case (key, value) => conf.setProperty(key, value) }
 
-      //TODO if lanuage != en --> load -de.conf file
+      //TODO if lanuage != en --> load the specified file
     }
 
     return conf
@@ -51,16 +51,26 @@ object ConfigObj {
    * Gets the config value from the given key.
    */
   def getC(key: String) = config.getProperty(key) match {
-    case null      => None
-    case x: String => Some(x)
+    case null                             => None
+    case x if (x.equals("software-name")) => Some(DefaultValues.swName)
+    case x if (x.equals("version"))       => Some(DefaultValues.swVersion)
+    case x if (x.equals("port"))          => Some(DefaultValues.port)
+    case x: String                        => Some(x)
   }
   /**
    * Gets the language value from the given key.
    */
   def getL(key: String) = language.getProperty(key) match {
-    case null      => None
-    case x: String => Some(x)
+    case null                             => None
+    case x if (x.equals("software-name")) => Some(DefaultValues.swName)
+    case x: String                        => Some(x)
   }
+
+  def getCss() =
+    if (getC("theme").get.equals("default"))
+      getClass.getResource("style/FtpGui.css").toExternalForm()
+    else
+      getClass.getResource(getC("theme").get).toExternalForm()
 
   private def checkConfig(conf: java.util.Properties): Boolean = {
     val origKeys = DefaultValues.defaultConfKeys.keySet
@@ -78,21 +88,56 @@ object ConfigObj {
 //==================================================================
 //default key-values, if the file doesn't exsts
 private object DefaultValues {
+  //== Values that shouldn't be translated
+  val swName = "NJ's FTP"
+  val swVersion = "1.0"
+  val port = "Port"
+  private val defaultLocalDir = System.getProperty("user.home")
+  private val defaultDownloadDir = defaultLocalDir + "/Downloads"
+
   /*
    * The value this/default is used for default-values
    */
   val defaultConfKeys: Map[String, String] = Map(
     "config-file" -> "this",
     "language-file" -> "default",
-    "version" -> "1.0",
     "language" -> "en",
-    "theme" -> "default")
+    "theme" -> "default",
+    "local-start-dir" -> defaultLocalDir,
+    "download-dir" -> defaultDownloadDir)
+
   val defaultLangKeys: Map[String, String] = Map(
-    "upload-btn-lbl" -> "Upload",
-    "download-btn-lbl" -> "Download",
-    "loads-tab-lbl" -> "Up-/Downloads",
-    "log-tab-lbl" -> "Log",
-    "file-menue-lbl" -> "File",
-    "help-menue-lbl" -> "Help")
+    //menues
+    "file-menue" -> "File",
+    "help-menue" -> "Help",
+    //-- Filemenue
+    "local-root" -> "Set local root...",
+    "remote-root" -> "Set remote root...",
+    "local-root-chooser-title" -> "Set local root directory",
+    "exit" -> "Exit",
+    //-- Helpmenue
+    "client-information-item" -> "Client information",
+    "server-information-item" -> "Server information",
+    "about-item" -> "About...",
+    //connect-header
+    "servername" -> "Servername",
+    "username" -> "Username",
+    "password" -> "Password",
+    "connect-btn" -> "Connect",
+    "disconnect-btn" -> "Disconnect",
+    "upload-btn" -> "Upload",
+    "download-btn" -> "Download",
+    //filesystem-view
+    "local-filesystem-title" -> "Local Filesystem",
+    "remote-filesystem-title" -> "Remote Filesystem",
+    //filesystem treeview-entrys
+    "default-remote-entry" -> "Not Connected.",
+    //download-directory
+    "download-dir" -> "Download directory:",
+    "download-choose-entry" -> "Choose..",
+    "download-chooser-title" -> "Set download directory",
+    //Log-tabbar
+    "loads-tab" -> "Up-/Downloads",
+    "log-tab" -> "Log")
 }
 //==================================================================
