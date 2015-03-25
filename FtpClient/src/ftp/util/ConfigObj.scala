@@ -23,8 +23,10 @@ object ConfigObj {
     } else {
       conf.load(Files.newInputStream(configPath))
       //the loaded file doesn't contain all keys => use the default-keyset
-      if (!checkConfig(conf))
+      if (!checkConfig(conf)) {
         DefaultValues.defaultConfKeys.foreach { case (key, value) => conf.setProperty(key, value) }
+        conf.store(Files.newOutputStream(configPath), defaultConfDescription)
+      }
 
       //TODO if lanuage != en --> load the specified file
     }
@@ -40,8 +42,10 @@ object ConfigObj {
     } else {
       prop.load(Files.newInputStream(langPath))
       //the loaded file doesn't contain all keys => use the default-keyset
-      if (!checkLanguage(prop))
+      if (!checkLanguage(prop)) {
         DefaultValues.defaultLangKeys.foreach { case (key, value) => prop.setProperty(key, value) }
+        prop.store(Files.newOutputStream(langPath), defaultLangDescription)
+      }
     }
 
     return prop
