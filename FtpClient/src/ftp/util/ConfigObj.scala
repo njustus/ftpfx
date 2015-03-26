@@ -60,22 +60,30 @@ object ConfigObj {
    * @param the key for the value
    * @return Some() if the (key,value)-pair exists, None if the key doesn't exist
    */
-  def getC(key: String) = config.getProperty(key) match {
+  def getC(key: String) = key match {
     case null                             => None
     case x if (x.equals("software-name")) => Some(DefaultValues.swName)
     case x if (x.equals("version"))       => Some(DefaultValues.swVersion)
     case x if (x.equals("port"))          => Some(DefaultValues.port)
-    case x: String                        => Some(x)
+    case x: String => {
+      val value = config.getProperty(x)
+      if (value != null) Some(value)
+      else None
+    }
   }
   /**
    * Gets the language value from the given key.
    * @param the key for the value
    * @return Some() if the (key,value)-pair exists, None if the key doesn't exist
    */
-  def getL(key: String) = language.getProperty(key) match {
+  def getL(key: String) = key match {
     case null                             => None
     case x if (x.equals("software-name")) => Some(DefaultValues.swName)
-    case x: String                        => Some(x)
+    case x: String => {
+      val value = language.getProperty(x)
+      if (value != null) Some(value)
+      else None
+    }
   }
 
   /**

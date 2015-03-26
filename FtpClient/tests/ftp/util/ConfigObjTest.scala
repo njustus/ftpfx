@@ -14,9 +14,9 @@ class ConfigObjTest {
     assertEquals(None, ConfigObj.getC("blup"))
     assertEquals(None, ConfigObj.getC("dat"))
 
-    assertEquals(Some("Upload"), ConfigObj.getL("upload-btn-lbl"))
-    assertEquals(Some("Log"), ConfigObj.getL("log-tab-lbl"))
-    assertEquals(Some("Up-/Downloads"), ConfigObj.getL("loads-tab-lbl"))
+    assertEquals(Some("Upload"), ConfigObj.getL("upload-btn"))
+    assertEquals(Some("Log"), ConfigObj.getL("log-tab"))
+    assertEquals(Some("Up-/Downloads"), ConfigObj.getL("loads-tab"))
 
     assertEquals(None, ConfigObj.getL("blup"))
     assertEquals(None, ConfigObj.getL("dat"))
