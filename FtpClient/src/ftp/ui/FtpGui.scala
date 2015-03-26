@@ -112,10 +112,9 @@ class FtpGui extends Application {
    * @param the key for the value
    * @return the value or "not defined"
    */
-  private def lang(key: String): String = {
-    val value = ConfigObj.getL(key)
-    if (value.isDefined) value.get
-    else {
+  private def lang(key: String): String = ConfigObj.getL(key) match {
+    case Some(x) => x
+    case None => {
       receiver.status(s"The language value for: $key doesn't exist")
       "not defined"
     }
