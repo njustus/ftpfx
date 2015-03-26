@@ -2,9 +2,9 @@ package ftp.util
 
 import java.nio.file.Paths
 import java.nio.file.Files
-
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import java.nio.charset.Charset
 
 /**
  * This object is used for loading ftpfx-configurations and the specified language settings.
@@ -14,8 +14,8 @@ object ConfigObj {
   val ps = System.getProperty("file.separator")
   private val defaultConfDescription = "ftpfx's default configuration file."
   private val defaultLangDescription = "ftpfx's default language file."
-  private val configPath = Paths.get("rsc" + ps + "conf" + ps + "ftpfxDefault.conf")
-  private val langPath = Paths.get("rsc" + ps + "lang" + ps + "ftpfx-en.conf")
+  private var configPath = Paths.get("rsc" + ps + "conf" + ps + "ftpfxDefault.conf")
+  private var langPath = Paths.get("rsc" + ps + "lang" + ps + "ftpfx-en.conf")
   private val config: java.util.Properties = loadConfig()
   private val language: java.util.Properties = loadLanguage()
 
@@ -25,17 +25,26 @@ object ConfigObj {
       DefaultValues.defaultConfKeys.foreach { case (key, value) => conf.setProperty(key, value) }
       conf.store(Files.newOutputStream(configPath), defaultConfDescription)
     } else {
-      conf.load(Files.newInputStream(configPath))
+      //      conf.load(Files.newInputStream(configPath))
+      conf.load(Files.newBufferedReader(configPath, Charset.forName("UTF-8")))
       //the loaded file doesn't contain all keys => use the default-keyset
       if (!checkConfig(conf)) {
         DefaultValues.defaultConfKeys.foreach { case (key, value) => conf.setProperty(key, value) }
         conf.store(Files.newOutputStream(configPath), defaultConfDescription)
       }
 
-      //TODO if lanuage != en --> load the specified file
+      loadSpecifiedConfig(conf)
     }
 
     return conf
+  }
+
+  private def loadSpecifiedConfig(conf: java.util.Properties) = {
+    //-- set language-path
+    val langPath = conf.getProperty("language-file")
+    if (langPath != null && langPath != "default") {
+      this.langPath = Paths.get(langPath)
+    }
   }
 
   private def loadLanguage(): java.util.Properties = {
@@ -44,7 +53,8 @@ object ConfigObj {
       DefaultValues.defaultLangKeys.foreach { case (key, value) => prop.setProperty(key, value) }
       prop.store(Files.newOutputStream(langPath), defaultLangDescription)
     } else {
-      prop.load(Files.newInputStream(langPath))
+      //      prop.load(Files.newInputStream(langPath))
+      prop.load(Files.newBufferedReader(langPath, Charset.forName("UTF-8")))
       //the loaded file doesn't contain all keys => use the default-keyset
       if (!checkLanguage(prop)) {
         DefaultValues.defaultLangKeys.foreach { case (key, value) => prop.setProperty(key, value) }

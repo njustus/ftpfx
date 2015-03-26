@@ -212,6 +212,9 @@ class FtpGui extends Application {
   override def stop() = {
     if (trManager != null)
       trManager ! Exit() //stop the actor
+
+    if (ftpClient != null)
+      ftpClient.disconnect()
   }
 
   /**
