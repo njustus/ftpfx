@@ -23,6 +23,7 @@ object ViewFactory {
 
   /**
    * Generates a new TreeView from the given file.
+   *
    * This method shouldn't be used anymore. The lazy-view-generation (newLazyView()) is better.
    * @param file the file
    */
@@ -36,6 +37,7 @@ object ViewFactory {
 
   /**
    * Generates a temporary view, without any sub-elements. They needs to lazily generated.
+   *
    * @param file the (actual) rootpath
    */
   def newLazyView(file: Path): CheckBoxTreeItem[Path] = {
@@ -70,6 +72,7 @@ object ViewFactory {
 
   /**
    * Generates a new (sub)-view for the given directory within the content.
+   *
    * Especially used for the response from the server for ls()-commands.
    * @param dir the actual root-directory
    * @param content the content of the directory
