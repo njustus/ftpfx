@@ -379,7 +379,11 @@ class FtpGui extends Application {
   } //class ReceiveHandler
 
   private def showServerInformation() = {
-    ???
+    //TODO show an information-dialog
+    if (ftpClient != null)
+      receiver.status(ftpClient.getServerInformation());
+    else
+      receiver.error("Please connect to the server first!")
   }
 
   private def showClientInformation() = {

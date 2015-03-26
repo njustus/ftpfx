@@ -260,19 +260,25 @@ class BaseClient private[client] (private val socket: Socket, private val output
     return res
   }
   override def getServerInformation(): String = {
-    ???
+    val sb = new StringBuilder()
+    sb ++= "Hostname=" + this.socket.getInetAddress.getHostName + "\n"
+    sb ++= "IP-Address=" + this.socket.getInetAddress + "\n"
+    sb ++= "(Ftp) Control Port=" + this.socket.getRemoteSocketAddress + "\n"
+    if (this.dataSocket != null) sb ++= "(Ftp) Data Port=" + this.dataSocket.getRemoteSocketAddress.toString + "\n"
+
+    return sb.toString
   }
   override def getClientInformation(): String = {
-    val sb = new StringBuilder();
+    val sb = new StringBuilder()
     val inet = InetAddress.getLocalHost
-    sb ++= "OS: " + Properties.osName + "\n"
-    sb ++= "Hostname: " + inet.getHostName + "\n"
-    sb ++= "Username: " + Properties.userName + "\n"
-    sb ++= "IP-Address: " + inet.getHostAddress + "\n"
-    sb ++= "(Ftp) Control Port: " + this.socket.getPort() + "\n"
-    if (this.dataSocket != null) sb ++= "(Ftp) Data Port: " + this.dataSocket.getPort() + "\n"
+    sb ++= "OS=" + Properties.osName + "\n"
+    sb ++= "Hostname=" + inet.getHostName + "\n"
+    sb ++= "Username=" + Properties.userName + "\n"
+    sb ++= "IP-Address=" + inet.getHostAddress + "\n"
+    sb ++= "(Ftp) Control Port=" + this.socket.getPort() + "\n"
+    if (this.dataSocket != null) sb ++= "(Ftp) Data Port=" + this.dataSocket.getPort() + "\n"
 
-    return sb.toString()
+    return sb.toString
   }
   override def changeMode(active: Boolean): Boolean = {
     if (active) {
