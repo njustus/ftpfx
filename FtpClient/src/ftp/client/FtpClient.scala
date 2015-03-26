@@ -54,16 +54,37 @@ trait FtpClient {
   def receiveFile(file: Path, dest: Path): Boolean = receiveFile(file.toAbsolutePath.toString, dest.toAbsolutePath.toString)
   /**
    * Gets information about the connected server.
-   * The informations are separated by \n and the key : value by :.
+   * The informations are separated by \n and the key = value by =.
    * @return the serverinformations
    */
   def getServerInformation(): String
   /**
+   * Returns the server information as key -> value map.
+   */
+  def getServerInformationAsMap(): Map[String, String] =
+    getClientInformation().split("\n").flatMap(line =>
+      if (line.contains("=")) {
+        val pairs = line.split("=")
+        Some((pairs(0), pairs(1)))
+      } else None).toMap
+
+  /**
    * Gets information about the used client.
-   * The informations are separated by \n and the key : value by :.
+   * The informations are separated by \n and the key = value by =.
    * @return the informations about the client
    */
   def getClientInformation(): String
+
+  /**
+   * Returns the client information as key -> value map.
+   */
+  def getClientInformationAsMap(): Map[String, String] =
+    getClientInformation().split("\n").flatMap(line =>
+      if (line.contains("=")) {
+        val pairs = line.split("=")
+        Some((pairs(0), pairs(1)))
+      } else None).toMap
+
   /**
    * Changes the transfer-mode. Either to active or passive.
    * @pararm active true if active mode, false if passive-mode
