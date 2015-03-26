@@ -61,10 +61,10 @@ object ConfigObj {
    * @return Some() if the (key,value)-pair exists, None if the key doesn't exist
    */
   def getC(key: String) = key match {
-    case null                             => None
-    case x if (x.equals("software-name")) => Some(DefaultValues.swName)
-    case x if (x.equals("version"))       => Some(DefaultValues.swVersion)
-    case x if (x.equals("port"))          => Some(DefaultValues.port)
+    case null            => None
+    case "software-name" => Some(DefaultValues.swName)
+    case "version"       => Some(DefaultValues.swVersion)
+    case "port"          => Some(DefaultValues.port)
     case x: String => {
       val value = config.getProperty(x)
       if (value != null) Some(value)
@@ -77,9 +77,9 @@ object ConfigObj {
    * @return Some() if the (key,value)-pair exists, None if the key doesn't exist
    */
   def getL(key: String) = key match {
-    case null                             => None
-    case x if (x.equals("software-name")) => Some(DefaultValues.swName)
-    case x if(x.equals("port")) => Some(DefaultValues.port)
+    case null            => None
+    case "software-name" => Some(DefaultValues.swName)
+    case "port"          => Some(DefaultValues.port)
     case x: String => {
       val value = language.getProperty(x)
       if (value != null) Some(value)
@@ -91,7 +91,7 @@ object ConfigObj {
    * Gets the default-csss-file.
    */
   def getCss() =
-    if (getC("theme").get.equals("default"))
+    if (getC("theme").get == "default")
       getRsc(ps + "style" + ps + "FtpGui.css")
     else
       getRsc(getC("theme").get)

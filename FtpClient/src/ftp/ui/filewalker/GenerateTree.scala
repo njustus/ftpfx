@@ -19,7 +19,7 @@ class GenerateTree(private val root: CheckBoxTreeItem[Path]) extends FileVisitor
   }
 
   def preVisitDirectory(file: Path, attr: BasicFileAttributes): FileVisitResult = {
-    if (file.equals(root.getValue)) return FileVisitResult.CONTINUE
+    if (file == root.getValue) return FileVisitResult.CONTINUE
     else if (!Files.isHidden(file)) {
       val sub = new CheckBoxTreeItem[Path](file)
       actual.getChildren.add(sub)

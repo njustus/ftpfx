@@ -113,7 +113,7 @@ object ViewFactory {
         if (t.getChildren.contains(dummyPath)) {
           //remove the dummy and replace the childrens
           t.getChildren.remove(dummyPath)
-          val subview = newView(path)
+          val subview = newLazyView(path)
           t.getChildren.addAll(subview.getChildren)
         }
       }
