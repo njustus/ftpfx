@@ -9,7 +9,7 @@ import java.nio.file.Path
  * FTP is a synchronous protocol so you can use send & receive methods. <br/><br/>
  * For more information about FTP:
  * @see FtpClient/FtpDescription-RFC959.txt
- * @see <a href="https://www.ietf.org/rfc/rfc959.txt">https://www.ietf.org/rfc/rfc959.txt</a>
+ * @see [[https://www.ietf.org/rfc/rfc959.txt]]
  */
 trait FtpClient {
   /**
