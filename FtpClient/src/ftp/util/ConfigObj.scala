@@ -12,8 +12,9 @@ object ConfigObj {
   private val configPath = Paths.get("rsc/conf/ftpfxDefault.conf")
   private val langPath = Paths.get("rsc/lang/ftpfx-en.conf")
   private val config: java.util.Properties = loadConfig()
-  //TODO needs to be defined
   private val language: java.util.Properties = loadLanguage()
+  //path-separator
+  val ps = System.getProperty("path.separator")
 
   private def loadConfig(): java.util.Properties = {
     val conf: java.util.Properties = new java.util.Properties()
@@ -144,4 +145,3 @@ private object DefaultValues {
     "loads-tab" -> "Up-/Downloads",
     "log-tab" -> "Log")
 }
-//==================================================================
