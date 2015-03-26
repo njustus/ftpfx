@@ -6,15 +6,18 @@ import java.nio.file.Files
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
+/**
+ * This object is used for loading ftpfx-configurations and the specified language settings.
+ */
 object ConfigObj {
-  private val defaultConfDescription = "ftpfx's default configuration file."
-  private val defaultLangDescription = "ftpfx's default language file."
-  private val configPath = Paths.get("rsc/conf/ftpfxDefault.conf")
-  private val langPath = Paths.get("rsc/lang/ftpfx-en.conf")
-  private val config: java.util.Properties = loadConfig()
-  private val language: java.util.Properties = loadLanguage()
   //path-separator
   val ps = System.getProperty("path.separator")
+  private val defaultConfDescription = "ftpfx's default configuration file."
+  private val defaultLangDescription = "ftpfx's default language file."
+  private val configPath = Paths.get("rsc" + ps + "conf" + ps + "ftpfxDefault.conf")
+  private val langPath = Paths.get("rsc" + ps + "lang" + ps + "ftpfx-en.conf")
+  private val config: java.util.Properties = loadConfig()
+  private val language: java.util.Properties = loadLanguage()
 
   private def loadConfig(): java.util.Properties = {
     val conf: java.util.Properties = new java.util.Properties()
@@ -54,6 +57,8 @@ object ConfigObj {
 
   /**
    * Gets the config value from the given key.
+   * @param the key for the value
+   * @return Some() if the (key,value)-pair exists, None if the key doesn't exist
    */
   def getC(key: String) = config.getProperty(key) match {
     case null                             => None
@@ -64,6 +69,8 @@ object ConfigObj {
   }
   /**
    * Gets the language value from the given key.
+   * @param the key for the value
+   * @return Some() if the (key,value)-pair exists, None if the key doesn't exist
    */
   def getL(key: String) = language.getProperty(key) match {
     case null                             => None
@@ -71,9 +78,12 @@ object ConfigObj {
     case x: String                        => Some(x)
   }
 
+  /**
+   * Gets the default-csss-file.
+   */
   def getCss() =
     if (getC("theme").get.equals("default"))
-      getClass.getResource("style/FtpGui.css").toExternalForm()
+      getClass.getResource("style" + ps + "FtpGui.css").toExternalForm()
     else
       getClass.getResource(getC("theme").get).toExternalForm()
 
@@ -98,7 +108,7 @@ private object DefaultValues {
   val swVersion = "1.0"
   val port = "Port"
   private val defaultLocalDir = System.getProperty("user.home")
-  private val defaultDownloadDir = defaultLocalDir + "/Downloads"
+  private val defaultDownloadDir = defaultLocalDir + ConfigObj.ps + "Downloads"
 
   /*
    * The value this/default is used for default-values
