@@ -20,5 +20,14 @@ class ConfigObjTest {
 
     assertEquals(None, ConfigObj.getL("blup"))
     assertEquals(None, ConfigObj.getL("dat"))
+
+    //stylesheet tests
+    val styleRsc = ConfigObj.getCss()
+    //1. test if != null
+    assertNotEquals(null, styleRsc)
+
+    //2. test if the relative path is correct
+    val pathExp = ".*/style/FtpGui.css".r
+    assertTrue(pathExp.findFirstIn(styleRsc).isDefined)
   }
 }

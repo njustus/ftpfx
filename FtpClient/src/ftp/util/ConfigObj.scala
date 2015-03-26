@@ -11,7 +11,7 @@ import scala.collection.JavaConverters._
  */
 object ConfigObj {
   //path-separator
-  val ps = System.getProperty("path.separator")
+  val ps = System.getProperty("file.separator")
   private val defaultConfDescription = "ftpfx's default configuration file."
   private val defaultLangDescription = "ftpfx's default language file."
   private val configPath = Paths.get("rsc" + ps + "conf" + ps + "ftpfxDefault.conf")
@@ -91,9 +91,12 @@ object ConfigObj {
    */
   def getCss() =
     if (getC("theme").get.equals("default"))
-      getClass.getResource("style" + ps + "FtpGui.css").toExternalForm()
+      getRsc(ps + "style" + ps + "FtpGui.css")
     else
-      getClass.getResource(getC("theme").get).toExternalForm()
+      getRsc(getC("theme").get)
+
+  def getRsc(path: String): String =
+    this.getClass.getResource(path).toExternalForm()
 
   private def checkConfig(conf: java.util.Properties): Boolean = {
     val origKeys = DefaultValues.defaultConfKeys.keySet
