@@ -30,6 +30,7 @@ import ftp.client.FtpClient
 import ftp.response.Receivable
 import ftp.ui.FxEventHandlerImplicits._
 import ftp.util.ImplicitConversions._
+import ftp.util.ConfigObj
 import javafx.scene.layout.VBox
 import javafx.scene.control.CheckBoxTreeItem
 import javafx.scene.control.cell.CheckBoxTreeCell
@@ -92,6 +93,33 @@ class FtpGui extends Application {
   private var trManager: TransferManager = null
   //Download-directory
   private val downloadDir = new ComboBox[Path]()
+
+  /**
+   * Gets the specified config-value from the config-object.
+   * @param the key for the value
+   * @return the value or "not defined"
+   */
+  private def conf(key: String) = {
+    val value = ConfigObj.getC(key)
+    if (value.isDefined) value
+    else {
+      receiver.status(s"The config value for: $key doesn't exist")
+      "not defined"
+    }
+  }
+  /**
+   * Gets the specified language-value from the config-object.
+   * @param the key for the value
+   * @return the value or "not defined"
+   */
+  private def lang(key: String) = {
+    val value = ConfigObj.getL(key)
+    if (value.isDefined) value
+    else {
+      receiver.status(s"The language value for: $key doesn't exist")
+      "not defined"
+    }
+  }
 
   override def start(primStage: Stage) = {
     primaryStage = primStage
