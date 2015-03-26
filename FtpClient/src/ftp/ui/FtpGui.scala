@@ -56,7 +56,7 @@ import javafx.collections.FXCollections
 import javafx.scene.layout.HBox
 
 /**
- * This class is used for the FX-GUI.
+ * Used for the FX-GUI.
  */
 class FtpGui extends Application {
   private var ftpClient: FtpClient = null
@@ -219,10 +219,11 @@ class FtpGui extends Application {
 
   /**
    * Generates the centered panels with the local and remote filesystem-treeviews.
+   *
    * Also adds:
-   *  the directory-chooser for the downloads
-   *  the upload-button
-   *  the download-button
+   *  <li>the directory-chooser for the downloads</li>
+   *  <li>the upload-button</li>
+   *  <li>the download-button</li>
    */
   private def genFileSystemView(): Pane = {
     val fsRoot = new GridPane()
@@ -274,6 +275,7 @@ class FtpGui extends Application {
 
   /**
    * Generates the view for the local filesystem.
+   *
    * This method uses the factory for generating the view.
    */
   private def genLocalFs(): TreeView[Path] = {
@@ -287,8 +289,9 @@ class FtpGui extends Application {
 
   /**
    * Generates the standard-view for the remote filesystem.
-   * This method is normally only used at start-time for generating a TreeView.
-   * This method uses the factory for generating the view.
+   *
+   * <li>This method is normally only used at start-time for generating a TreeView.</li>
+   * <li>This method uses the factory for generating the view.</li>
    */
   private def genRemoteFs(): TreeView[FileDescriptor] = {
     val tree = new TreeView[FileDescriptor](new CheckBoxTreeItem[FileDescriptor](new RemoteFile(lang("default-remote-entry"))))
@@ -299,7 +302,8 @@ class FtpGui extends Application {
 
   /**
    * Generates the new remote-view after login and also after changing the directorys.
-   * This method is at runtime used.
+   *
+   * This method is used at runtime.
    */
   private def genRemoteFs(dir: String, content: List[FileDescriptor]) =
     remoteFs.setRoot(ViewFactory.newSubView(dir, content))
