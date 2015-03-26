@@ -79,6 +79,7 @@ object ConfigObj {
   def getL(key: String) = key match {
     case null                             => None
     case x if (x.equals("software-name")) => Some(DefaultValues.swName)
+    case x if(x.equals("port")) => Some(DefaultValues.port)
     case x: String => {
       val value = language.getProperty(x)
       if (value != null) Some(value)

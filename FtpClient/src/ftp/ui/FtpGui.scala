@@ -65,21 +65,21 @@ class FtpGui extends Application {
   private var primaryStage: Stage = null
   //menue
   private val menueBar = new MenuBar()
-  private val fileMenue = new Menu("File")
-  private val helpMenue = new Menu("Help")
+  private val fileMenue = new Menu(lang("file-menue"))
+  private val helpMenue = new Menu(lang("help-menue"))
 
   //Connection
   private val txtServer = new TextField()
   private val txtPort = new TextField("21")
   private val txtUsername = new TextField()
   private val txtPassword = new PasswordField()
-  private val btnConnect = new Button("Connect")
-  private val btnDisconnect = new Button("Disconnect")
+  private val btnConnect = new Button(lang("connect-btn"))
+  private val btnDisconnect = new Button(lang("disconnect-btn"))
   //Logs
   private val txaLog = new TextArea()
   private val txaLoads = new TextArea()
-  private val tabLog = new Tab("Log")
-  private val tabLoads = new Tab("Up-/Downloads")
+  private val tabLog = new Tab(lang("log-tab"))
+  private val tabLoads = new Tab(lang("loads-tab"))
 
   //Filesystems
   private var localFs: TreeView[Path] = null
@@ -87,8 +87,8 @@ class FtpGui extends Application {
 
   //Down-/Uploads
   //added in genFileSystemView() together with the download-directory-chooser
-  private val btnUpload = new Button("Upload")
-  private val btnDownload = new Button("Download")
+  private val btnUpload = new Button(lang("upload-btn"))
+  private val btnDownload = new Button(lang("download-btn"))
   //transfermanager for the up-/downloads
   private var trManager: TransferManager = null
   //Download-directory
@@ -134,12 +134,12 @@ class FtpGui extends Application {
 
     //Menues
     //File menue
-    val chLocalMnItem = new MenuItem("Set local root..")
-    val chRemoteMnItem = new MenuItem("Set remote root..")
-    val exitMnItem = new MenuItem("Exit")
+    val chLocalMnItem = new MenuItem(lang("local-root"))
+    val chRemoteMnItem = new MenuItem(lang("remote-root"))
+    val exitMnItem = new MenuItem(lang("exit"))
     chLocalMnItem.setOnAction((ev: ActionEvent) => {
       val chooser = new DirectoryChooser()
-      chooser.setTitle("Set local root directory")
+      chooser.setTitle(lang("local-root-chooser-title"))
       val file = chooser.showDialog(primStage)
       if (file != null) {
         val path = file.toPath()
@@ -152,9 +152,9 @@ class FtpGui extends Application {
     fileMenue.getItems.addAll(chLocalMnItem, chRemoteMnItem, exitMnItem)
 
     //Help menue
-    val clientInfoMnItem = new MenuItem("Client information")
-    val serverInfoMnItem = new MenuItem("Server information")
-    val aboutInfoMnItem = new MenuItem("About...")
+    val clientInfoMnItem = new MenuItem(lang("client-information-item"))
+    val serverInfoMnItem = new MenuItem(lang("server-information-item"))
+    val aboutInfoMnItem = new MenuItem(lang("about-item"))
     clientInfoMnItem.setOnAction((ev: ActionEvent) => showClientInformation())
     serverInfoMnItem.setOnAction((ev: ActionEvent) => showServerInformation())
     aboutInfoMnItem.setOnAction((ev: ActionEvent) => showAbout())
@@ -174,13 +174,13 @@ class FtpGui extends Application {
 
     txtPort.setMaxWidth(50)
 
-    top.add(newBoldText("Servername"), 0, 0)
+    top.add(newBoldText(lang("servername")), 0, 0)
     top.add(txtServer, 1, 0)
-    top.add(newBoldText("Port"), 2, 0)
+    top.add(newBoldText(lang("port")), 2, 0)
     top.add(txtPort, 3, 0)
-    top.add(newBoldText("Usename"), 0, 1)
+    top.add(newBoldText(lang("username")), 0, 1)
     top.add(txtUsername, 1, 1)
-    top.add(newBoldText("Password"), 2, 1)
+    top.add(newBoldText(lang("password")), 2, 1)
     top.add(txtPassword, 3, 1)
     top.add(btnConnect, 4, 1)
     top.add(btnDisconnect, 4, 0)
@@ -225,8 +225,8 @@ class FtpGui extends Application {
     val fsRoot = new GridPane()
     fsRoot.setId("fsGrid")
 
-    fsRoot.add(newBoldText("Local Filesystem"), 0, 0)
-    fsRoot.add(newBoldText("Remote Filesystem"), 1, 0)
+    fsRoot.add(newBoldText(lang("local-filesystem-title")), 0, 0)
+    fsRoot.add(newBoldText(lang("remote-filesystem-title")), 1, 0)
     localFs = genLocalFs()
     localFs.setMinSize(370, 300)
     remoteFs = genRemoteFs()
@@ -237,7 +237,7 @@ class FtpGui extends Application {
 
     //download directory
     val downloadPane = new HBox()
-    val chooseView = Paths.get("Choose..")
+    val chooseView = Paths.get(lang("download-choose-entry"))
     val l: ObservableList[Path] = FXCollections.observableArrayList(Paths.get(conf("download-dir")), Paths.get(conf("local-start-dir")), chooseView);
     downloadPane.setId("downloadPane")
     downloadDir.setItems(l)
@@ -246,7 +246,7 @@ class FtpGui extends Application {
     //handler for showing the directory-chooser
     downloadDir.setOnAction((ev: ActionEvent) => if (downloadDir.getSelectionModel.getSelectedItem == chooseView) {
       val chooser = new DirectoryChooser()
-      chooser.setTitle("Set download directory")
+      chooser.setTitle(lang("download-chooser-title"))
       val file = chooser.showDialog(primaryStage)
       if (file != null) {
         val path = file.toPath()
@@ -254,7 +254,7 @@ class FtpGui extends Application {
         downloadDir.getSelectionModel().selectFirst()
       }
     })
-    downloadPane.getChildren.addAll(newBoldText("Download directory:"), downloadDir, btnUpload, btnDownload)
+    downloadPane.getChildren.addAll(newBoldText(lang("download-dir")), downloadDir, btnUpload, btnDownload)
 
     //only needed for setup the download-directory below the fs-view
     val root = new VBox()
@@ -288,7 +288,7 @@ class FtpGui extends Application {
    * This method uses the factory for generating the view.
    */
   private def genRemoteFs(): TreeView[FileDescriptor] = {
-    val tree = new TreeView[FileDescriptor](new CheckBoxTreeItem[FileDescriptor](new RemoteFile("Not Connected.")))
+    val tree = new TreeView[FileDescriptor](new CheckBoxTreeItem[FileDescriptor](new RemoteFile(lang("default-remote-entry"))))
 
     tree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     return tree
