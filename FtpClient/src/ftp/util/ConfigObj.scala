@@ -7,7 +7,7 @@ import scala.collection.JavaConverters._
 import java.nio.charset.Charset
 
 /**
- * This object is used for loading ftpfx-configurations and the specified language settings.
+ * Used for loading ftpfx-configurations and the specified language settings.
  */
 object ConfigObj {
   //path-separator
@@ -67,6 +67,7 @@ object ConfigObj {
 
   /**
    * Gets the config value from the given key.
+   *
    * @param the key for the value
    * @return Some() if the (key,value)-pair exists, None if the key doesn't exist
    */
@@ -83,6 +84,7 @@ object ConfigObj {
   }
   /**
    * Gets the language value from the given key.
+   *
    * @param the key for the value
    * @return Some() if the (key,value)-pair exists, None if the key doesn't exist
    */
