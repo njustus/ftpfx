@@ -99,14 +99,14 @@ class FtpGui extends Application {
    * @param the key for the value
    * @return the value or "not defined"
    */
-  private def conf(key: String): String = {
-    val value = ConfigObj.getC(key)
-    if (value.isDefined) value.get
-    else {
+  private def conf(key: String): String = ConfigObj.getC(key) match {
+    case Some(x) => x
+    case None => {
       receiver.status(s"The config value for: $key doesn't exist")
       "not defined"
     }
   }
+
   /**
    * Gets the specified language-value from the config-object.
    * @param the key for the value
