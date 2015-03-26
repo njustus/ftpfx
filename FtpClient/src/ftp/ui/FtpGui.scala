@@ -99,9 +99,9 @@ class FtpGui extends Application {
    * @param the key for the value
    * @return the value or "not defined"
    */
-  private def conf(key: String) = {
+  private def conf(key: String): String = {
     val value = ConfigObj.getC(key)
-    if (value.isDefined) value
+    if (value.isDefined) value.get
     else {
       receiver.status(s"The config value for: $key doesn't exist")
       "not defined"
@@ -112,9 +112,9 @@ class FtpGui extends Application {
    * @param the key for the value
    * @return the value or "not defined"
    */
-  private def lang(key: String) = {
+  private def lang(key: String): String = {
     val value = ConfigObj.getL(key)
-    if (value.isDefined) value
+    if (value.isDefined) value.get
     else {
       receiver.status(s"The language value for: $key doesn't exist")
       "not defined"
@@ -130,7 +130,7 @@ class FtpGui extends Application {
     top.setId("topGrid")
     root.setTop(top)
     val scene = new Scene(vboxContainer, 800, 700)
-    scene.getStylesheets().add(getClass.getResource("style/FtpGui.css").toExternalForm())
+    scene.getStylesheets().add(ConfigObj.getCss())
 
     //Menues
     //File menue
@@ -201,7 +201,7 @@ class FtpGui extends Application {
 
     root.setBottom(pane)
     vboxContainer.getChildren.addAll(menueBar, root)
-    primStage.setTitle("NJ's FTP")
+    primStage.setTitle(conf("software-name"))
     primStage.setScene(scene)
     primStage.sizeToScene()
     primStage.show()
@@ -238,7 +238,7 @@ class FtpGui extends Application {
     //download directory
     val downloadPane = new HBox()
     val chooseView = Paths.get("Choose..")
-    val l: ObservableList[Path] = FXCollections.observableArrayList(Paths.get(System.getProperty("user.home") + "/Downloads"), Paths.get(System.getProperty("user.home")), chooseView);
+    val l: ObservableList[Path] = FXCollections.observableArrayList(Paths.get(conf("download-dir")), Paths.get(conf("local-start-dir")), chooseView);
     downloadPane.setId("downloadPane")
     downloadDir.setItems(l)
     downloadDir.getSelectionModel().selectFirst()
