@@ -9,8 +9,9 @@ import ftp.response.Receivable
 
 /**
  * This manager transfers files to the ftpserver and downloads files from the ftpserver.
- * It uses Upload-/Download-Messages for the files that should be transfered.
- * If the client is null this actor does nothing by default.
+ *
+ * It uses Upload-/Download-Messages for the files that should be transfered.<br/><br/>
+ * <b>If the client is null this actor does nothing by default.</b>
  *
  * @param ftpClient - the  FtpClient-Connection
  */

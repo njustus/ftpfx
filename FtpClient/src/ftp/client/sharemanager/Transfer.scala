@@ -10,6 +10,7 @@ import ftp.client.filesystem.FileDescriptor
 abstract class Transfer[T](protected val files: List[T]) {
   /**
    * Returns the list of files which should be transferred.
+   *
    * @return a list of files
    */
   def getFiles() = files
@@ -29,6 +30,7 @@ case class Download(override protected val files: List[FileDescriptor], val dest
 }
 /**
  * Defines exit-class for the TransferManager.
+ *
  * This message-class simply stops the manager.
  */
 case class Exit() {
