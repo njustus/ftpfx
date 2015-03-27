@@ -54,6 +54,8 @@ import javafx.scene.control.ComboBox
 import javafx.collections.ObservableList
 import javafx.collections.FXCollections
 import javafx.scene.layout.HBox
+import javafx.scene.input.KeyEvent
+import javafx.scene.input.KeyCode
 
 /**
  * Used for the FX-GUI.
@@ -172,6 +174,7 @@ class FtpGui extends Application {
     btnDownload.setId("download-btn")
 
     txtPort.setMaxWidth(50)
+    txtPassword.setOnKeyPressed((ev: KeyEvent) => if (ev.getCode == KeyCode.ENTER) connect())
 
     top.add(newBoldText(lang("servername")), 0, 0)
     top.add(txtServer, 1, 0)
