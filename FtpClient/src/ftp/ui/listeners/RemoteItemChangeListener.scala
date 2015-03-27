@@ -1,7 +1,9 @@
 package ftp.ui.listeners
 
-import ftp.client.filesystem.FileDescriptor
 import javafx.scene.control.TreeItem
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import ftp.client.filesystem.FileDescriptor
 import ftp.ui.FtpGui
 import ftp.ui.DummyItems
 import ftp.ui.ViewFactory
@@ -19,6 +21,9 @@ class RemoteItemChangeListener(ls: (FileDescriptor) => Option[List[FileDescripto
         case Some(x: List[FileDescriptor]) =>
           //generate the subview from the changed element and add it to the tree
           val subview = ViewFactory.newSubView(path.getFilename(), x)
+          //add a cd-handler to the new generated subview
+          subview.getChildren.asScala.filter(_.getValue().isDirectory()).foreach { x => x.expandedProperty().addListener(this) }
+          //add the subview to it's root
           item.getChildren.addAll(subview.getChildren)
       }
 
