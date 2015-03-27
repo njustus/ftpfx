@@ -8,6 +8,7 @@ import javafx.beans.value.ObservableValue
 import javafx.scene.control.CheckBoxTreeItem
 import scala.collection.JavaConversions.iterableAsScalaIterable
 import ftp.ui.filewalker.GenerateTree
+import ftp.ui.listeners._
 import javafx.scene.control.TreeItem
 import javafx.event.EventHandler
 import javafx.event.ActionEvent
@@ -42,7 +43,7 @@ object ViewFactory {
    */
   def newLazyView(file: Path): CheckBoxTreeItem[Path] = {
     val root = new CheckBoxTreeItem[Path](file)
-    val listener: ChangeListener[java.lang.Boolean] = new ItemChangeListener()
+    val listener: ChangeListener[java.lang.Boolean] = new LocalItemChangeListener(dummyPath)
 
     //! this is absolutely ugly ! (thanks to the generics)
     def generateItem(x: Path): CheckBoxTreeItem[Path] = {
@@ -56,12 +57,11 @@ object ViewFactory {
     Files.newDirectoryStream(file).filterNot { x => Files.isHidden(x) }.
       foreach {
         _ match {
-          case x if (Files.isDirectory(x)) => {
+          case x if (Files.isDirectory(x)) =>
             //Add a dummy-children for identifying later in the lazy generation
             val xItem = generateItem(x)
             xItem.getChildren.add(dummyPath)
             root.getChildren.add(xItem)
-          }
           case x if (!Files.isDirectory(x)) => root.getChildren.add(new CheckBoxTreeItem[Path](x))
         }
       }
@@ -83,12 +83,11 @@ object ViewFactory {
     //generate directory content
     content.foreach {
       _ match {
-        case f if (f.isDirectory()) => {
+        case f if (f.isDirectory()) =>
           //Add a dummy-children for identifying later in the lazy generation
           val xItem = new CheckBoxTreeItem[FileDescriptor](f)
           xItem.getChildren.add(dummyPath)
           root.getChildren.add(xItem)
-        }
         case f if (f.isFile()) =>
           root.getChildren.add(new CheckBoxTreeItem[FileDescriptor](f))
       }

@@ -307,9 +307,15 @@ class FtpGui extends Application {
    *
    * This method is used at runtime.
    */
-  private def genRemoteFs(dir: String, content: List[FileDescriptor]) =
-    remoteFs.setRoot(ViewFactory.newSubView(dir, content))
+  private def genRemoteFs(dir: String, content: List[FileDescriptor]) = {
+    val root = ViewFactory.newSubView(dir, content)
 
+    //add EventHalders to all child's that aren't leafs ( subRoots are folders ;) )
+    //TODO add handler
+    root.getChildren.filter(!_.isLeaf()).foreach { x => ??? }
+
+    remoteFs.setRoot(root)
+  }
   /*
    * ------------- EventHandlers --------------------
    * -----------------------------------------------
