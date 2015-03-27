@@ -311,15 +311,18 @@ class FtpGui extends Application {
   private def genRemoteFs(dir: String, content: List[FileDescriptor]) = {
     val root = ViewFactory.newSubView(dir, content)
 
-    //TODO implement this method
-    def listRemoteFiles(parent: FileDescriptor): Option[List[FileDescriptor]] = {
-      None
-    }
+    /**
+     * Returns either None or Some() with the listing of the new directory.
+     */
+    def listRemoteFiles(parent: FileDescriptor): Option[List[FileDescriptor]] =
+      ftpClient match {
+        case null => None
+        case _    => ftpClient.cd(parent.getFilename()); Some(ftpClient.ls())
+      }
 
     val listener = new RemoteItemChangeListener(listRemoteFiles)
 
     //add EventHalders to all child's that aren't leafs ( subRoots are folders ;) )
-    //TODO add handler
     root.getChildren.filter(!_.isLeaf()).foreach { x => x.expandedProperty().addListener(listener) }
 
     remoteFs.setRoot(root)
