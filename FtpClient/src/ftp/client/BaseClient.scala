@@ -23,7 +23,7 @@ class BaseClient private[client] (private val socket: Socket, private val output
   private var dataSocket: Socket = null //used for the data-connection
   private var dataInput: Scanner = null
   private var dataOutput: PrintWriter = null
-  private var actualDir: String = "/" //holds the path to the actual directory
+  private var actualDir: String = "" //holds the path to the actual directory
   private val lg: Log = new Log(receiver)
 
   /**
@@ -90,6 +90,11 @@ class BaseClient private[client] (private val socket: Socket, private val output
 
     resp = nextLine
     lg.newMsg(resp, x => x.startsWith("230"))
+
+    //if successfull -> save the actual directory
+    if (lg.getLastResult)
+      actualDir = pwd()
+
     return lg.getLastResult
 
   }
@@ -112,9 +117,8 @@ class BaseClient private[client] (private val socket: Socket, private val output
 
     resp = nextLine
     lg.newMsg(resp, x => x.startsWith("250"))
-    if (lg.getLastResult) {
-      actualDir = if (path.startsWith("/")) path else actualDir.concat("/" + path);
-    }
+    if (lg.getLastResult)
+      actualDir = pwd()
 
     return actualDir;
   }
@@ -138,8 +142,8 @@ class BaseClient private[client] (private val socket: Socket, private val output
     while (dataInput.hasNext)
       dataInput.nextLine match {
         //matches on a suffix like: .* => it's a file
-        case x if (x.matches(".*([.]).*"))  => response = response :+ new RemoteFile(x, false)
-        case x if (!x.matches(".*([.]).*")) => response = response :+ new RemoteFile(x, true)
+        case x if (x.matches(".*([.]).*"))  => response = response :+ new RemoteFile(actualDir + "/" + x, false)
+        case x if (!x.matches(".*([.]).*")) => response = response :+ new RemoteFile(actualDir + "/" + x, true)
         case _                              => { /*can't happen*/ }
       }
 
