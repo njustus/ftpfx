@@ -56,6 +56,7 @@ import javafx.collections.FXCollections
 import javafx.scene.layout.HBox
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.KeyCode
+import ftp.ui.listeners.RemoteItemChangeListener
 
 /**
  * Used for the FX-GUI.
@@ -310,9 +311,16 @@ class FtpGui extends Application {
   private def genRemoteFs(dir: String, content: List[FileDescriptor]) = {
     val root = ViewFactory.newSubView(dir, content)
 
+    //TODO implement this method
+    def listRemoteFiles(parent: FileDescriptor): Option[List[FileDescriptor]] = {
+      None
+    }
+
+    val listener = new RemoteItemChangeListener(listRemoteFiles)
+
     //add EventHalders to all child's that aren't leafs ( subRoots are folders ;) )
     //TODO add handler
-    root.getChildren.filter(!_.isLeaf()).foreach { x => ??? }
+    root.getChildren.filter(!_.isLeaf()).foreach { x => x.expandedProperty().addListener(listener) }
 
     remoteFs.setRoot(root)
   }
