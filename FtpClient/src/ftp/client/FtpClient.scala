@@ -39,6 +39,8 @@ trait FtpClient {
    * Lists the directory content.
    */
   def ls(): List[FileDescriptor]
+  def list() = ls()
+  def listFiles() = ls()
   /**
    * Prints out the actual working directory
    */
