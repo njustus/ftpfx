@@ -5,6 +5,7 @@ import javafx.scene.control.TreeItem
 import java.nio.file.Path
 import ftp.client.filesystem.FileDescriptor
 import ftp.client.filesystem.RemoteFile
+import ftp.client.filesystem.WrappedPath
 
 /**
  * Holds the path-entrys for dummyitems in a [[TreeItem]].
@@ -13,7 +14,7 @@ object DummyItems {
   /**
    * Entry for the local filesystem.
    */
-  val localFs: TreeItem[Path] = new TreeItem[Path](Paths.get("."))
+  val localFs: TreeItem[WrappedPath] = new TreeItem[WrappedPath](WrappedPath(Paths.get(".")))
   /**
    * Entry for the remote filesystem.
    */
