@@ -18,10 +18,6 @@ import ftp.client.filesystem.FileDescriptor
 import ftp.client.filesystem.RemoteFile
 
 object ViewFactory {
-
-  //dummy-path for recognizing not-generated subfolders
-  private val dummyPath: CheckBoxTreeItem[Path] = new CheckBoxTreeItem[Path](Paths.get("."))
-
   /**
    * Generates a new TreeView from the given file.
    *
@@ -43,7 +39,7 @@ object ViewFactory {
    */
   def newLazyView(file: Path): CheckBoxTreeItem[Path] = {
     val root = new CheckBoxTreeItem[Path](file)
-    val listener: ChangeListener[java.lang.Boolean] = new LocalItemChangeListener(dummyPath)
+    val listener: ChangeListener[java.lang.Boolean] = new LocalItemChangeListener()
 
     //! this is absolutely ugly ! (thanks to the generics)
     def generateItem(x: Path): CheckBoxTreeItem[Path] = {
@@ -60,7 +56,7 @@ object ViewFactory {
           case x if (Files.isDirectory(x)) =>
             //Add a dummy-children for identifying later in the lazy generation
             val xItem = generateItem(x)
-            xItem.getChildren.add(dummyPath)
+            xItem.getChildren.add(DummyItems.localFs)
             root.getChildren.add(xItem)
           case x if (!Files.isDirectory(x)) => root.getChildren.add(new CheckBoxTreeItem[Path](x))
         }
@@ -79,14 +75,14 @@ object ViewFactory {
    */
   def newSubView(dir: String, content: List[FileDescriptor]): CheckBoxTreeItem[FileDescriptor] = {
     val root = new CheckBoxTreeItem[FileDescriptor](new RemoteFile(dir, true))
-    val dummyPath = new CheckBoxTreeItem[FileDescriptor](new RemoteFile(".", false))
+
     //generate directory content
     content.foreach {
       _ match {
         case f if (f.isDirectory()) =>
           //Add a dummy-children for identifying later in the lazy generation
           val xItem = new CheckBoxTreeItem[FileDescriptor](f)
-          xItem.getChildren.add(dummyPath)
+          xItem.getChildren.add(DummyItems.remoteFs)
           root.getChildren.add(xItem)
         case f if (f.isFile()) =>
           root.getChildren.add(new CheckBoxTreeItem[FileDescriptor](f))
@@ -112,9 +108,9 @@ object ViewFactory {
         val path = t.getValue
 
         //set new subpath for the given directory if it's not created yet
-        if (t.getChildren.contains(dummyPath)) {
+        if (t.getChildren.contains(DummyItems.localFs)) {
           //remove the dummy and replace the childrens
-          t.getChildren.remove(dummyPath)
+          t.getChildren.remove(DummyItems.localFs)
           val subview = newLazyView(path)
           t.getChildren.addAll(subview.getChildren)
         }
