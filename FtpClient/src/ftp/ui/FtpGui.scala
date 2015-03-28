@@ -250,8 +250,7 @@ class FtpGui extends Application {
 
     //download directory
     val downloadPane = new HBox()
-    val chooseView = Paths.get(lang("download-choose-entry"))
-    val l: ObservableList[Path] = FXCollections.observableArrayList(Paths.get(conf("download-dir")), Paths.get(conf("local-start-dir")), chooseView);
+    val l: ObservableList[Path] = FXCollections.observableArrayList(Paths.get(conf("download-dir")), Paths.get(conf("local-start-dir")));
     downloadPane.setId("downloadPane")
     downloadDir.setItems(l)
     downloadDir.getSelectionModel().selectFirst()
