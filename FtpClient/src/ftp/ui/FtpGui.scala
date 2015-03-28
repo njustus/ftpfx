@@ -57,6 +57,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.KeyCode
 import ftp.ui.listeners.RemoteItemChangeListener
+import ftp.client.filesystem.WrappedPath
 
 /**
  * Used for the FX-GUI.
@@ -85,7 +86,7 @@ class FtpGui extends Application {
   private val tabLoads = new Tab(lang("loads-tab"))
 
   //Filesystems
-  private var localFs: TreeView[Path] = null
+  private var localFs: TreeView[WrappedPath] = null
   private var remoteFs: TreeView[FileDescriptor] = null
 
   //Down-/Uploads
@@ -281,10 +282,10 @@ class FtpGui extends Application {
    *
    * This method uses the factory for generating the view.
    */
-  private def genLocalFs(): TreeView[Path] = {
+  private def genLocalFs(): TreeView[WrappedPath] = {
     val next = Paths.get(System.getProperty("user.home"))
     val root = ViewFactory.newLazyView(next)
-    val view = new TreeView[Path](root)
+    val view = new TreeView[WrappedPath](root)
 
     view.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     return view
@@ -425,13 +426,12 @@ class FtpGui extends Application {
    * Handles the file transfers.
    */
   private def shareFiles(ev: ActionEvent) = {
-
     if (ev.getSource == btnUpload) {
-      val selectedElements = this.localFs.getSelectionModel.getSelectedItems.map { _.getValue }.toList
+      val selectedElements = this.localFs.getSelectionModel.getSelectedItems.map(_.getValue.path).toList
 
       trManager ! Upload(selectedElements)
     } else if (ev.getSource == btnDownload) {
-      val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems.map { _.getValue }.toList
+      val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems.map(_.getValue).toList
 
       trManager ! Download(selectedElements, downloadDir.getSelectionModel.getSelectedItem.toAbsolutePath().toString())
     }
