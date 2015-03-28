@@ -26,6 +26,8 @@ import javafx.scene.control.TextArea
 import java.io.StringWriter
 import java.io.PrintWriter
 import javafx.scene.layout.Priority
+import javafx.scene.control.TextInputDialog
+import ftp.util.ConfigObj
 
 /**
  * Creates JavaFx-components.
@@ -211,6 +213,27 @@ object ViewFactory {
     dialog.getDialogPane().setMinSize(400, 400)
     dialog.getDialogPane().setExpandableContent(pane)
 
+    dialog
+  }
+
+  /**
+   * Creates a dialog for setting the remote-root directory.
+   */
+  def newChangeRemoteRootDialog() = {
+    /*
+     * method for getting the specified keys from the ConfigObj.
+     * This method is a shortcut.
+     */
+    def getL(key: String) = ConfigObj.getL(key) match {
+      case None    => "not defined"
+      case Some(x) => x
+    }
+
+    //setup the dialog with the language-keys
+    val dialog = new TextInputDialog("/")
+    dialog.setTitle(getL("remote-root-chooser-title"))
+    dialog.setHeaderText(getL("remote-root-chooser-header"))
+    dialog.setContentText(getL("remote-root-chooser-content"))
     dialog
   }
 

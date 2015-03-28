@@ -144,18 +144,10 @@ class FtpGui extends Application {
     val chLocalMnItem = new MenuItem(lang("local-root"))
     val chRemoteMnItem = new MenuItem(lang("remote-root"))
     val exitMnItem = new MenuItem(lang("exit"))
-    chLocalMnItem.setOnAction((ev: ActionEvent) => {
-      val chooser = new DirectoryChooser()
-      chooser.setTitle(lang("local-root-chooser-title"))
-
-      val file = chooser.showDialog(primStage)
-      if (file != null) {
-        val path = file.toPath()
-        localFs.setRoot(ViewFactory.newLazyView(path))
-      }
-    })
-
-    chRemoteMnItem.setOnAction((ev: ActionEvent) => ???)
+    //changes the local root view
+    chLocalMnItem.setOnAction((ev: ActionEvent) => changeLocalRootDir())
+    //changes the remote's root directory
+    chRemoteMnItem.setOnAction((ev: ActionEvent) => changeRemoteRootDir())
     exitMnItem.setOnAction((ev: ActionEvent) => primStage.close())
     fileMenue.getItems.addAll(chLocalMnItem, chRemoteMnItem, exitMnItem)
 
@@ -174,7 +166,7 @@ class FtpGui extends Application {
     btnConnect.setId("green")
     btnConnect.setOnAction((ev: ActionEvent) => connect())
     btnDisconnect.setId("red")
-    btnDisconnect.setOnAction((ev: ActionEvent) => if (ftpClient != null) ftpClient.disconnect())
+    btnDisconnect.setOnAction((ev: ActionEvent) => disconnect())
     btnUpload.setOnAction((ev: ActionEvent) => shareFiles(ev))
     btnDownload.setOnAction((ev: ActionEvent) => shareFiles(ev))
     btnUpload.setId("upload-btn")
@@ -267,7 +259,8 @@ class FtpGui extends Application {
       }
     })
 
-    downloadPane.getChildren.addAll(newBoldText(lang("download-dir")), downloadDir, btnChangeDownloadDir, btnUpload, btnDownload)
+    downloadPane.getChildren.addAll(newBoldText(lang("download-dir")),
+      downloadDir, btnChangeDownloadDir, btnUpload, btnDownload)
 
     //only needed for setup the download-directory below the fs-view
     val root = new VBox()
@@ -288,7 +281,7 @@ class FtpGui extends Application {
    * This method uses the factory for generating the view.
    */
   private def genLocalFs(): TreeView[WrappedPath] = {
-    val next = Paths.get(System.getProperty("user.home"))
+    val next = Paths.get(conf("local-start-dir"))
     val root = ViewFactory.newLazyView(next)
     val view = new TreeView[WrappedPath](root)
 
@@ -303,7 +296,7 @@ class FtpGui extends Application {
    * <li>This method uses the factory for generating the view.</li>
    */
   private def genRemoteFs(): TreeView[FileDescriptor] = {
-    val tree = new TreeView[FileDescriptor](new CheckBoxTreeItem[FileDescriptor](new RemoteFile(lang("default-remote-entry"))))
+    val tree = new TreeView[FileDescriptor](new TreeItem[FileDescriptor](new RemoteFile(lang("default-remote-entry"))))
 
     tree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     return tree
@@ -333,6 +326,7 @@ class FtpGui extends Application {
 
     remoteFs.setRoot(root)
   }
+
   /*
    * ------------- EventHandlers --------------------
    * -----------------------------------------------
@@ -367,25 +361,56 @@ class FtpGui extends Application {
 
   } //connect
 
-  private def showServerInformation() = {
-    if (ftpClient != null) {
-      val infos = ftpClient.getServerInformation()
-      receiver.status(infos);
-      val dialog = ViewFactory.newInformationDialog("Server informations", "Server information:", infos)
-      dialog.showAndWait()
-    } else
-      receiver.error("Please connect to the server first!")
+  /**
+   * Disconnects the client and resets the object.
+   */
+  private def disconnect() = if (ftpClient != null) {
+    ftpClient.disconnect()
+    ftpClient = null
   }
 
-  private def showClientInformation() = {
-    if (ftpClient != null) {
-      val infos = ftpClient.getClientInformation()
-      receiver.status(infos);
-      val dialog = ViewFactory.newInformationDialog("Client informations", "Client information:", infos)
-      dialog.showAndWait()
-    } else
-      receiver.error("Please connect to the server first!")
+  /**
+   * Changes the local root dir.
+   */
+  private def changeLocalRootDir() = {
+    val chooser = new DirectoryChooser()
+    chooser.setTitle(lang("local-root-chooser-title"))
+
+    val file = chooser.showDialog(primaryStage)
+    if (file != null) {
+      val path = file.toPath()
+      localFs.setRoot(ViewFactory.newLazyView(path))
+    }
   }
+
+  /**
+   * Changes the remote root dir.
+   */
+  private def changeRemoteRootDir() = if (ftpClient != null) {
+    //show input-dialog and set the root
+    val dialog = ViewFactory.newChangeRemoteRootDialog()
+    val optResult = dialog.showAndWait()
+    if (optResult.isPresent) {
+      val path = optResult.get
+      ftpClient.cd(path)
+      val content = ftpClient.list()
+      genRemoteFs(path, content)
+    }
+  } else receiver.error("Please connect to the server first.")
+
+  private def showServerInformation() = if (ftpClient != null) {
+    val infos = ftpClient.getServerInformation()
+    receiver.status(infos);
+    val dialog = ViewFactory.newInformationDialog("Server informations", "Server information:", infos)
+    dialog.showAndWait()
+  } else receiver.error("Please connect to the server first!")
+
+  private def showClientInformation() = if (ftpClient != null) {
+    val infos = ftpClient.getClientInformation()
+    receiver.status(infos);
+    val dialog = ViewFactory.newInformationDialog("Client informations", "Client information:", infos)
+    dialog.showAndWait()
+  } else receiver.error("Please connect to the server first!")
 
   private def showAbout() = {
     ???
@@ -394,16 +419,14 @@ class FtpGui extends Application {
   /**
    * Handles the file transfers.
    */
-  private def shareFiles(ev: ActionEvent) = {
-    if (ev.getSource == btnUpload) {
-      val selectedElements = this.localFs.getSelectionModel.getSelectedItems.map(_.getValue.path).toList
+  private def shareFiles(ev: ActionEvent) = if (ev.getSource == btnUpload) {
+    val selectedElements = this.localFs.getSelectionModel.getSelectedItems.map(_.getValue.path).toList
 
-      trManager ! Upload(selectedElements)
-    } else if (ev.getSource == btnDownload) {
-      val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems.map(_.getValue).toList
+    trManager ! Upload(selectedElements)
+  } else if (ev.getSource == btnDownload) {
+    val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems.map(_.getValue).toList
 
-      trManager ! Download(selectedElements, downloadDir.getSelectionModel.getSelectedItem.toAbsolutePath().toString())
-    }
+    trManager ! Download(selectedElements, downloadDir.getSelectionModel.getSelectedItem.toAbsolutePath().toString())
   }
 
   /**
