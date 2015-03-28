@@ -371,7 +371,7 @@ class FtpGui extends Application {
     if (ftpClient != null) {
       val infos = ftpClient.getServerInformation()
       receiver.status(infos);
-      val dialog = ViewFactory.newInformationDialogue("Server informations", "Server information:", infos)
+      val dialog = ViewFactory.newInformationDialog("Server informations", "Server information:", infos)
       dialog.showAndWait()
     } else
       receiver.error("Please connect to the server first!")
@@ -381,7 +381,7 @@ class FtpGui extends Application {
     if (ftpClient != null) {
       val infos = ftpClient.getClientInformation()
       receiver.status(infos);
-      val dialog = ViewFactory.newInformationDialogue("Client informations", "Client information:", infos)
+      val dialog = ViewFactory.newInformationDialog("Client informations", "Client information:", infos)
       dialog.showAndWait()
     } else
       receiver.error("Please connect to the server first!")
@@ -415,7 +415,7 @@ class FtpGui extends Application {
         txaLog.appendText(s"ERROR: $msg\n")
         tabLog.getTabPane.getSelectionModel.select(tabLog)
 
-        val dialog = ViewFactory.newErrorDialogue(msg = msg)
+        val dialog = ViewFactory.newErrorDialog(msg = msg)
         //cause runnables can't return values.. java... -.-
         val opt = dialog.showAndWait()
       })
@@ -431,7 +431,7 @@ class FtpGui extends Application {
         txaLog.appendText("Exception occured: " + ex.toString)
         tabLog.getTabPane.getSelectionModel.select(tabLog)
 
-        val dialog = ViewFactory.newExceptionDialogue(msg = "You found a bug.", ex = ex)
+        val dialog = ViewFactory.newExceptionDialog(msg = "You found a bug.", ex = ex)
         //cause runnables can't return values.. java... -.-
         val opt = dialog.showAndWait()
       })

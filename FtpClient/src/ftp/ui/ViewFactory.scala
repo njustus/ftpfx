@@ -126,13 +126,13 @@ object ViewFactory {
    * @param msg The actual message inside the dialogue-box
    * @return an Alert-Dialogue
    */
-  def newErrorDialogue(title: String = "Error", header: String = "An error occured!", msg: String) = {
-    val dialogue = new Alert(AlertType.ERROR)
-    dialogue.setTitle(title)
-    dialogue.setHeaderText(header)
-    dialogue.setContentText(msg)
+  def newErrorDialog(title: String = "Error", header: String = "An error occured!", msg: String) = {
+    val dialog = new Alert(AlertType.ERROR)
+    dialog.setTitle(title)
+    dialog.setHeaderText(header)
+    dialog.setContentText(msg)
 
-    dialogue
+    dialog
   }
 
   /**
@@ -144,13 +144,13 @@ object ViewFactory {
    * @param msg The actual message inside the dialogue-box
    * @return an Alert-Dialogue
    */
-  def newWarningDialogue(title: String = "Warning", header: String = "Attention", msg: String) = {
-    val dialogue = new Alert(AlertType.WARNING)
-    dialogue.setTitle(title)
-    dialogue.setHeaderText(header)
-    dialogue.setContentText(msg)
+  def newWarningDialog(title: String = "Warning", header: String = "Attention", msg: String) = {
+    val dialog = new Alert(AlertType.WARNING)
+    dialog.setTitle(title)
+    dialog.setHeaderText(header)
+    dialog.setContentText(msg)
 
-    dialogue
+    dialog
   }
 
   /**
@@ -162,13 +162,13 @@ object ViewFactory {
    * @param msg The actual message inside the dialogue-box
    * @return an Alert-Dialogue
    */
-  def newInformationDialogue(title: String = "Information", header: String = "Information:", msg: String) = {
-    val dialogue = new Alert(AlertType.INFORMATION)
-    dialogue.setTitle(title)
-    dialogue.setHeaderText(header)
-    dialogue.setContentText(msg)
+  def newInformationDialog(title: String = "Information", header: String = "Information:", msg: String) = {
+    val dialog = new Alert(AlertType.INFORMATION)
+    dialog.setTitle(title)
+    dialog.setHeaderText(header)
+    dialog.setContentText(msg)
 
-    dialogue
+    dialog
   }
 
   /**
@@ -181,11 +181,11 @@ object ViewFactory {
    * @param ex The exception that occured
    * @return an Alert-Dialogue
    */
-  def newExceptionDialogue(title: String = "EXCEPTION - ERROR", header: String = "Oups that shouldn't happen:", msg: String, ex: Exception) = {
-    val dialogue = new Alert(AlertType.ERROR)
-    dialogue.setTitle(title)
-    dialogue.setHeaderText(header)
-    dialogue.setContentText(msg)
+  def newExceptionDialog(title: String = "EXCEPTION - ERROR", header: String = "Oups that shouldn't happen:", msg: String, ex: Exception) = {
+    val dialog = new Alert(AlertType.ERROR)
+    dialog.setTitle(title)
+    dialog.setHeaderText(header)
+    dialog.setContentText(msg)
 
     //write the stacktrace into a string
     val sw = new StringWriter()
@@ -208,10 +208,10 @@ object ViewFactory {
     pane.add(label, 0, 0)
     pane.add(textArea, 0, 1)
 
-    dialogue.getDialogPane().setMinSize(400, 400)
-    dialogue.getDialogPane().setExpandableContent(pane)
+    dialog.getDialogPane().setMinSize(400, 400)
+    dialog.getDialogPane().setExpandableContent(pane)
 
-    dialogue
+    dialog
   }
 
   @deprecated
