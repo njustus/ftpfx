@@ -112,10 +112,8 @@ class BaseClient private[client] (private val socket: Socket, private val output
 
     resp = nextLine
     lg.newMsg(resp, x => x.startsWith("250"))
-    if (lg.getLastResult) {
-      actualDir = if (path.startsWith("/")) path else actualDir.concat("/" + path);
-    }
-
+    if (lg.getLastResult)
+      actualDir = pwd()
     return actualDir;
   }
   /**
@@ -140,7 +138,6 @@ class BaseClient private[client] (private val socket: Socket, private val output
         //matches on a suffix like: .* => it's a file
         case x if (x.matches(".*([.]).*"))  => response = response :+ new RemoteFile(x, false)
         case x if (!x.matches(".*([.]).*")) => response = response :+ new RemoteFile(x, true)
-        case _                              => { /*can't happen*/ }
       }
 
     respCtrl = nextLine
