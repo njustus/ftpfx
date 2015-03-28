@@ -369,7 +369,8 @@ class FtpGui extends Application {
     if (ftpClient != null) {
       val infos = ftpClient.getServerInformation()
       receiver.status(infos);
-      ViewFactory.newInformationDialogue("Server informations", "Server information:", infos)
+      val dialog = ViewFactory.newInformationDialogue("Server informations", "Server information:", infos)
+      dialog.showAndWait()
     } else
       receiver.error("Please connect to the server first!")
   }
@@ -378,7 +379,8 @@ class FtpGui extends Application {
     if (ftpClient != null) {
       val infos = ftpClient.getClientInformation()
       receiver.status(infos);
-      ViewFactory.newInformationDialogue("Server informations", "Server information:", infos)
+      val dialog = ViewFactory.newInformationDialogue("Client informations", "Client information:", infos)
+      dialog.showAndWait()
     } else
       receiver.error("Please connect to the server first!")
   }
