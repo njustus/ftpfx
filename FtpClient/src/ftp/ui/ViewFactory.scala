@@ -65,19 +65,18 @@ object ViewFactory {
       return item
     }
 
-    //get all entrys without hiddenfiles & sort them by compareTo() method
+    //get all entrys without hiddenfiles
     val files = Files.newDirectoryStream(file).filterNot(Files.isHidden(_)).toList
-    files.sortWith((x, y) => x.compareTo(y) < 0).
-      foreach {
-        _ match {
-          case x if (Files.isDirectory(x)) =>
-            //Add a dummy-children for identifying later in the lazy generation
-            val xItem = generateItem(x)
-            xItem.getChildren.add(DummyItems.localFs)
-            root.getChildren.add(xItem)
-          case x if (!Files.isDirectory(x)) => root.getChildren.add(new TreeItem[WrappedPath](WrappedPath(x)))
-        }
-      }
+    //sort them by compareTo() method & add them to the view
+    files.sortWith((x, y) => compareByName(x, y) < 0).foreach(
+      _ match {
+        case x if (Files.isDirectory(x)) =>
+          //Add a dummy-children for identifying later in the lazy generation
+          val xItem = generateItem(x)
+          xItem.getChildren.add(DummyItems.localFs)
+          root.getChildren.add(xItem)
+        case x if (!Files.isDirectory(x)) => root.getChildren.add(new TreeItem[WrappedPath](WrappedPath(x)))
+      })
 
     root.setExpanded(true)
     return root
@@ -94,7 +93,7 @@ object ViewFactory {
     val root = new TreeItem[FileDescriptor](new RemoteFile(dir, true))
 
     //generate directory content
-    content.foreach {
+    content.sortWith((x, y) => compareByName(x, y) < 0).foreach {
       _ match {
         case f if (f.isDirectory()) =>
           //Add a dummy-children for identifying later in the lazy generation
@@ -109,6 +108,14 @@ object ViewFactory {
     root.setExpanded(true)
     return root
   }
+
+  /**
+   * Compares the given elements by their string-representation.
+   *
+   * This method <b>ignores</b> uper- or lowercase characters.
+   */
+  private def compareByName[T <: Comparable[T]](x: T, y: T) =
+    x.toString.toLowerCase().compareTo(y.toString.toLowerCase())
 
   /**
    * Creates a new error-dialgue with the given content.

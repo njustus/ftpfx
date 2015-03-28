@@ -3,7 +3,7 @@ package ftp.client.filesystem
 /**
  * This trait describes file-informations.
  */
-trait FileDescriptor {
+trait FileDescriptor extends Comparable[FileDescriptor] {
   /**
    * Tests wether the file is a directory or not.
    *
@@ -30,4 +30,10 @@ trait FileDescriptor {
     val splitted = this.getAbsoluteFilename().split("/")
     splitted(splitted.length - 1)
   }
+
+  override def toString() = getAbsoluteFilename()
+
+  override def compareTo(other: FileDescriptor) =
+    this.getFilename().compareTo(other.getFilename())
+
 }
