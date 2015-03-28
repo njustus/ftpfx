@@ -96,6 +96,7 @@ class FtpGui extends Application {
   //added in genFileSystemView() together with the download-directory-chooser
   private val btnUpload = new Button(lang("upload-btn"))
   private val btnDownload = new Button(lang("download-btn"))
+  private val btnChangeDownloadDir = new Button(lang("download-choose-entry"))
   //transfermanager for the up-/downloads
   private var trManager: TransferManager = null
   //Download-directory
@@ -146,6 +147,7 @@ class FtpGui extends Application {
     chLocalMnItem.setOnAction((ev: ActionEvent) => {
       val chooser = new DirectoryChooser()
       chooser.setTitle(lang("local-root-chooser-title"))
+
       val file = chooser.showDialog(primStage)
       if (file != null) {
         val path = file.toPath()
@@ -255,7 +257,7 @@ class FtpGui extends Application {
     downloadDir.getSelectionModel().selectFirst()
     downloadDir.setMinWidth(150)
     //handler for showing the directory-chooser
-    downloadDir.setOnAction((ev: ActionEvent) => if (downloadDir.getSelectionModel.getSelectedItem == chooseView) {
+    btnChangeDownloadDir.setOnAction((ev: ActionEvent) => {
       val chooser = new DirectoryChooser()
       chooser.setTitle(lang("download-chooser-title"))
       val file = chooser.showDialog(primaryStage)
@@ -265,7 +267,8 @@ class FtpGui extends Application {
         downloadDir.getSelectionModel().selectFirst()
       }
     })
-    downloadPane.getChildren.addAll(newBoldText(lang("download-dir")), downloadDir, btnUpload, btnDownload)
+
+    downloadPane.getChildren.addAll(newBoldText(lang("download-dir")), downloadDir, btnChangeDownloadDir, btnUpload, btnDownload)
 
     //only needed for setup the download-directory below the fs-view
     val root = new VBox()
@@ -358,7 +361,7 @@ class FtpGui extends Application {
         genRemoteFs(actualDir, userDir)
         //setup the transfer-manager
         if (trManager != null) trManager ! Exit()
-        trManager = new TransferManager(ftpClient, receiver)
+        trManager = new TransferManager(ftpClient, receiver, exh)
         trManager.start()
       }
     }
@@ -412,10 +415,11 @@ class FtpGui extends Application {
       Platform.runLater(() => {
         txaLog.appendText(s"ERROR: $msg\n")
         tabLog.getTabPane.getSelectionModel.select(tabLog)
-      })
 
-      val dialog = ViewFactory.newErrorDialogue(msg = msg)
-      dialog.showAndWait()
+        val dialog = ViewFactory.newErrorDialogue(msg = msg)
+        //cause runnables can't return values.. java... -.-
+        val opt = dialog.showAndWait()
+      })
     }
     def newMsg(msg: String): Unit = Platform.runLater(() => txaLog.appendText(msg + "\n"))
     def status(msg: String): Unit = Platform.runLater(() => {
@@ -427,10 +431,12 @@ class FtpGui extends Application {
       Platform.runLater(() => {
         txaLog.appendText("Exception occured: " + ex.toString)
         tabLog.getTabPane.getSelectionModel.select(tabLog)
+
+        val dialog = ViewFactory.newExceptionDialogue(msg = "You found a bug.", ex = ex)
+        //cause runnables can't return values.. java... -.-
+        val opt = dialog.showAndWait()
       })
 
-      val dialog = ViewFactory.newExceptionDialogue(msg = "You found a bug.", ex = ex)
-      dialog.showAndWait()
     }
   } //class ReceiveHandler
 }
