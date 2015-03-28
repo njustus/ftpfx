@@ -318,7 +318,7 @@ class FtpGui extends Application {
     def listRemoteFiles(parent: FileDescriptor): Option[List[FileDescriptor]] =
       ftpClient match {
         case null => None
-        case _    => ftpClient.cd(parent.getFilename()); Some(ftpClient.ls())
+        case _    => ftpClient.cd(parent.getAbsoluteFilename()); Some(ftpClient.ls())
       }
 
     val listener = new RemoteItemChangeListener(listRemoteFiles)

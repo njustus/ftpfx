@@ -17,9 +17,17 @@ trait FileDescriptor {
    */
   def isFile(): Boolean = !isDirectory()
   /**
-   * Returns the filename.
+   * Returns the absolute path with the filename.
    *
+   * @return the path within the filename
+   */
+  def getAbsoluteFilename(): String
+  /**
+   * Returns only the filename.
    * @return the filename
    */
-  def getFilename(): String
+  def getFilename() = {
+    val splitted = this.getAbsoluteFilename().split("/")
+    splitted(splitted.length - 1)
+  }
 }
