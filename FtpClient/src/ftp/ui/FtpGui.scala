@@ -348,14 +348,15 @@ class FtpGui extends Application {
     else {
       exh.catching {
         ftpClient = ClientFactory.newBaseClient(servername, port, receiver)
-        ftpClient.connect(username, password)
-        actualDir = ftpClient.pwd()
-        userDir = ftpClient.ls()
-        genRemoteFs(actualDir, userDir)
-        //setup the transfer-manager
-        if (trManager != null) trManager ! Exit()
-        trManager = new TransferManager(ftpClient, receiver, exh)
-        trManager.start()
+        if (ftpClient.connect(username, password)) {
+          actualDir = ftpClient.pwd()
+          userDir = ftpClient.ls()
+          genRemoteFs(actualDir, userDir)
+          //setup the transfer-manager
+          if (trManager != null) trManager ! Exit()
+          trManager = new TransferManager(ftpClient, receiver, exh)
+          trManager.start()
+        }
       }
     }
 
