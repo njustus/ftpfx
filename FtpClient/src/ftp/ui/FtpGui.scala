@@ -358,7 +358,7 @@ class FtpGui extends Application {
         trManager = new TransferManager(ftpClient, receiver)
         trManager.start()
       } catch {
-        case ex: Throwable => handleException(ex)
+        case ex: Exception => handleException(ex)
       }
     }
 
@@ -367,7 +367,7 @@ class FtpGui extends Application {
   /**
    * Global-Handler for exceptions
    */
-  private def handleException(e: Throwable) = {
+  private def handleException(e: Exception) = {
     /**
      * TODO implement wright error handling..
      *  --> right it to the log and informate the user.
@@ -375,7 +375,7 @@ class FtpGui extends Application {
     e match {
       case (_: java.net.ConnectException | _: java.net.SocketException) => receiver.error(e.getMessage)
       case ex: java.net.UnknownHostException => receiver.error("Unknown Host: " + txtServer.getText)
-      case _ => receiver.error(e.toString)
+      case _ => ViewFactory.newExceptionDialogue(msg = "Looks like you found a bug or missing implementation:", ex = e)
     }
   }
 
@@ -389,11 +389,7 @@ class FtpGui extends Application {
         tabLog.getTabPane.getSelectionModel.select(tabLog)
       })
 
-      /*
-       * TODO show an error-box when they released with jdk8_40..
-       * => march 2015
-       * alternative implement them on your own
-       */
+      ViewFactory.newErrorDialogue(msg = msg)
     }
     def newMsg(msg: String): Unit = Platform.runLater(() => { txaLog.appendText(msg + "\n") })
     def status(msg: String): Unit = Platform.runLater(() => {
@@ -404,17 +400,21 @@ class FtpGui extends Application {
 
   private def showServerInformation() = {
     //TODO show an information-dialog
-    if (ftpClient != null)
-      receiver.status(ftpClient.getServerInformation());
-    else
+    if (ftpClient != null) {
+      val infos = ftpClient.getServerInformation()
+      receiver.status(infos);
+      ViewFactory.newInformationDialogue("Server informations", "Server information:", infos)
+    } else
       receiver.error("Please connect to the server first!")
   }
 
   private def showClientInformation() = {
     //TODO show an information-dialog
-    if (ftpClient != null)
-      receiver.status(ftpClient.getClientInformation());
-    else
+    if (ftpClient != null) {
+      val infos = ftpClient.getClientInformation()
+      receiver.status(infos);
+      ViewFactory.newInformationDialogue("Server informations", "Server information:", infos)
+    } else
       receiver.error("Please connect to the server first!")
   }
 

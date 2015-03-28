@@ -18,7 +18,21 @@ import ftp.client.filesystem.FileDescriptor
 import ftp.client.filesystem.RemoteFile
 import ftp.client.filesystem.WrappedPath
 import javafx.scene.control.CheckBoxTreeItem
+import javafx.scene.control.Alert.AlertType
+import javafx.scene.control.Alert
+import javafx.scene.layout.GridPane
+import javafx.scene.control.Label
+import javafx.scene.control.TextArea
+import java.io.StringWriter
+import java.io.PrintWriter
+import javafx.scene.layout.Priority
 
+/**
+ * Creates JavaFx-components.
+ *
+ *
+ * For further informations about Dialogues: [[http://code.makery.ch/blog/javafx-dialogs-official/]]
+ */
 object ViewFactory {
   /**
    * Generates a new TreeView from the given file.
@@ -95,6 +109,104 @@ object ViewFactory {
     return root
   }
 
+  /**
+   * Creates a new error-dialgue with the given content.
+   *
+   * This method uses the [[javafx.scene.control.Alert]] from JavaFX.
+   * @param title The title of the dialogue-box
+   * @param header The header-line of the dialogue-box
+   * @param msg The actual message inside the dialogue-box
+   * @return an Alert-Dialogue
+   */
+  def newErrorDialogue(title: String = "Error", header: String = "An error occured!", msg: String) = {
+    val dialogue = new Alert(AlertType.ERROR)
+    dialogue.setTitle(title)
+    dialogue.setHeaderText(header)
+    dialogue.setContentText(msg)
+
+    dialogue
+  }
+
+  /**
+   * Creates a new warning-dialgue with the given content.
+   *
+   * This method uses the [[javafx.scene.control.Alert]] from JavaFX.
+   * @param title The title of the dialogue-box
+   * @param header The header-line of the dialogue-box
+   * @param msg The actual message inside the dialogue-box
+   * @return an Alert-Dialogue
+   */
+  def newWarningDialogue(title: String = "Warning", header: String = "Attention", msg: String) = {
+    val dialogue = new Alert(AlertType.WARNING)
+    dialogue.setTitle(title)
+    dialogue.setHeaderText(header)
+    dialogue.setContentText(msg)
+
+    dialogue
+  }
+
+  /**
+   * Creates a new information-dialgue with the given content.
+   *
+   * This method uses the [[javafx.scene.control.Alert]] from JavaFX.
+   * @param title The title of the dialogue-box
+   * @param header The header-line of the dialogue-box
+   * @param msg The actual message inside the dialogue-box
+   * @return an Alert-Dialogue
+   */
+  def newInformationDialogue(title: String = "Information", header: String = "Information:", msg: String) = {
+    val dialogue = new Alert(AlertType.INFORMATION)
+    dialogue.setTitle(title)
+    dialogue.setHeaderText(header)
+    dialogue.setContentText(msg)
+
+    dialogue
+  }
+
+  /**
+   * Creates a new <b>exception-dialgue</b> with the given content.
+   *
+   * This method uses the [[javafx.scene.control.Alert]] from JavaFX.
+   * @param title The title of the dialogue-box
+   * @param header The header-line of the dialogue-box
+   * @param msg The actual message inside the dialogue-box
+   * @param ex The exception that occured
+   * @return an Alert-Dialogue
+   */
+  def newExceptionDialogue(title: String = "EXCEPTION - ERROR", header: String = "Oups that shouldn't happen:", msg: String, ex: Exception) = {
+    val dialogue = new Alert(AlertType.ERROR)
+    dialogue.setTitle(title)
+    dialogue.setHeaderText(header)
+    dialogue.setContentText(msg)
+
+    //write the stacktrace into a string
+    val sw = new StringWriter()
+    val pw = new PrintWriter(sw)
+    ex.printStackTrace(pw)
+    val exceptionText = sw.toString
+
+    val label = new Label("The exception stacktrace was:");
+    val textArea = new TextArea(exceptionText);
+    textArea.setEditable(false);
+    textArea.setWrapText(true);
+    textArea.setMaxSize(Double.MaxValue, Double.MaxValue)
+
+    //let the text grow
+    GridPane.setVgrow(textArea, Priority.ALWAYS)
+    GridPane.setHgrow(textArea, Priority.ALWAYS)
+
+    val pane = new GridPane()
+    pane.setMaxWidth(Double.MaxValue)
+    pane.add(label, 0, 0)
+    pane.add(textArea, 0, 1)
+
+    dialogue.getDialogPane().setMinSize(400, 400)
+    dialogue.getDialogPane().setExpandableContent(pane)
+
+    dialogue
+  }
+
+  @deprecated
   private class ItemChangeListener extends ChangeListener[java.lang.Boolean] {
     override def changed(obVal: ObservableValue[_ <: java.lang.Boolean], oldVal: java.lang.Boolean, newVal: java.lang.Boolean): Unit = {
       /*
