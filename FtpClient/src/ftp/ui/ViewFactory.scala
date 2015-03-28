@@ -30,8 +30,8 @@ import javafx.scene.layout.Priority
 /**
  * Creates JavaFx-components.
  *
- *
- * For further informations about Dialogues: [[http://code.makery.ch/blog/javafx-dialogs-official/]]
+ * For further informations about Dialogues:
+ * [[http://code.makery.ch/blog/javafx-dialogs-official/]]
  */
 object ViewFactory {
   /**
@@ -65,8 +65,9 @@ object ViewFactory {
       return item
     }
 
-    //get all entrys without hiddenfiles
-    Files.newDirectoryStream(file).filterNot { x => Files.isHidden(x) }.
+    //get all entrys without hiddenfiles & sort them by compareTo() method
+    val files = Files.newDirectoryStream(file).filterNot(Files.isHidden(_)).toList
+    files.sortWith((x, y) => x.compareTo(y) < 0).
       foreach {
         _ match {
           case x if (Files.isDirectory(x)) =>
