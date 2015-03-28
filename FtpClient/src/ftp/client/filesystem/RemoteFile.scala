@@ -8,7 +8,10 @@ class RemoteFile(private val name: String, private val isdir: Boolean = false) e
   def isDirectory(): Boolean = isdir
 
   override def toString() = {
-    val splitted = name.split("/")
-    splitted(splitted.length - 1)
+    if (name == "/") name
+    else {
+      val splitted = name.split("/")
+      splitted(splitted.length - 1)
+    }
   }
 }

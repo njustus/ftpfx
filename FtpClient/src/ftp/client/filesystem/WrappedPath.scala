@@ -4,7 +4,10 @@ import java.nio.file.Path
 
 case class WrappedPath(val path: Path) {
   override def toString() = {
-    val splitted = path.toString().split("/")
-    splitted(splitted.length - 1)
+    if (path.toString == "/") path.toString
+    else {
+      val splitted = path.toString().split("/")
+      splitted(splitted.length - 1)
+    }
   }
 }
