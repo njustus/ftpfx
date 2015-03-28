@@ -379,25 +379,6 @@ class FtpGui extends Application {
     }
   }
 
-  /**
-   * Handler for the logs.
-   */
-  private class ReceiveHandler extends Receivable {
-    def error(msg: String): Unit = {
-      Platform.runLater(() => {
-        txaLog.appendText(s"ERROR: $msg\n")
-        tabLog.getTabPane.getSelectionModel.select(tabLog)
-      })
-
-      ViewFactory.newErrorDialogue(msg = msg)
-    }
-    def newMsg(msg: String): Unit = Platform.runLater(() => { txaLog.appendText(msg + "\n") })
-    def status(msg: String): Unit = Platform.runLater(() => {
-      if (msg.startsWith("Download") || msg.startsWith("Upload:")) txaLoads.appendText(msg + "\n")
-      else txaLog.appendText(msg + "\n")
-    })
-  } //class ReceiveHandler
-
   private def showServerInformation() = {
     //TODO show an information-dialog
     if (ftpClient != null) {
@@ -436,6 +417,25 @@ class FtpGui extends Application {
       trManager ! Download(selectedElements, downloadDir.getSelectionModel.getSelectedItem.toAbsolutePath().toString())
     }
   }
+
+  /**
+   * Handler for the logs.
+   */
+  private class ReceiveHandler extends Receivable {
+    def error(msg: String): Unit = {
+      Platform.runLater(() => {
+        txaLog.appendText(s"ERROR: $msg\n")
+        tabLog.getTabPane.getSelectionModel.select(tabLog)
+      })
+
+      ViewFactory.newErrorDialogue(msg = msg)
+    }
+    def newMsg(msg: String): Unit = Platform.runLater(() => { txaLog.appendText(msg + "\n") })
+    def status(msg: String): Unit = Platform.runLater(() => {
+      if (msg.startsWith("Download") || msg.startsWith("Upload:")) txaLoads.appendText(msg + "\n")
+      else txaLog.appendText(msg + "\n")
+    })
+  } //class ReceiveHandler
 }
 
 object FtpGui {
