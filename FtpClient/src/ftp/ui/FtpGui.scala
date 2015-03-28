@@ -58,14 +58,17 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.input.KeyCode
 import ftp.ui.listeners.RemoteItemChangeListener
 import ftp.client.filesystem.WrappedPath
+import ftp.response.MessageHandler
+import ftp.ui.errorhandle.ExceptionHandler
+import ftp.ui.errorhandle.ErrorHandle
 
 /**
  * Used for the FX-GUI.
  */
 class FtpGui extends Application {
   private var ftpClient: FtpClient = null
-  private val receiver: Receivable = new ReceiveHandler
-
+  private val receiver: MessageHandler = new ReceiveHandler
+  private val exh: ErrorHandle = new ExceptionHandler(receiver)
   private var primaryStage: Stage = null
   //menue
   private val menueBar = new MenuBar()
@@ -347,7 +350,7 @@ class FtpGui extends Application {
     if (servername.isEmpty() || txtPort.getText.isEmpty()) receiver.error("Specify Server & Port.")
     else if (username.isEmpty() || password.isEmpty()) receiver.error("Specify username/password.")
     else {
-      try {
+      exh.catching {
         ftpClient = ClientFactory.newBaseClient(servername, port, receiver)
         ftpClient.connect(username, password)
         actualDir = ftpClient.pwd()
@@ -357,30 +360,12 @@ class FtpGui extends Application {
         if (trManager != null) trManager ! Exit()
         trManager = new TransferManager(ftpClient, receiver)
         trManager.start()
-      } catch {
-        case ex: Exception => handleException(ex)
       }
     }
 
   } //connect
 
-  /**
-   * Global-Handler for exceptions
-   */
-  private def handleException(e: Exception) = {
-    /**
-     * TODO implement wright error handling..
-     *  --> right it to the log and informate the user.
-     */
-    e match {
-      case (_: java.net.ConnectException | _: java.net.SocketException) => receiver.error(e.getMessage)
-      case ex: java.net.UnknownHostException => receiver.error("Unknown Host: " + txtServer.getText)
-      case _ => ViewFactory.newExceptionDialogue(msg = "Looks like you found a bug or missing implementation:", ex = e)
-    }
-  }
-
   private def showServerInformation() = {
-    //TODO show an information-dialog
     if (ftpClient != null) {
       val infos = ftpClient.getServerInformation()
       receiver.status(infos);
@@ -390,7 +375,6 @@ class FtpGui extends Application {
   }
 
   private def showClientInformation() = {
-    //TODO show an information-dialog
     if (ftpClient != null) {
       val infos = ftpClient.getClientInformation()
       receiver.status(infos);
@@ -421,20 +405,31 @@ class FtpGui extends Application {
   /**
    * Handler for the logs.
    */
-  private class ReceiveHandler extends Receivable {
+  private class ReceiveHandler extends MessageHandler {
     def error(msg: String): Unit = {
       Platform.runLater(() => {
         txaLog.appendText(s"ERROR: $msg\n")
         tabLog.getTabPane.getSelectionModel.select(tabLog)
       })
 
-      ViewFactory.newErrorDialogue(msg = msg)
+      val dialog = ViewFactory.newErrorDialogue(msg = msg)
+      dialog.showAndWait()
     }
-    def newMsg(msg: String): Unit = Platform.runLater(() => { txaLog.appendText(msg + "\n") })
+    def newMsg(msg: String): Unit = Platform.runLater(() => txaLog.appendText(msg + "\n"))
     def status(msg: String): Unit = Platform.runLater(() => {
       if (msg.startsWith("Download") || msg.startsWith("Upload:")) txaLoads.appendText(msg + "\n")
       else txaLog.appendText(msg + "\n")
     })
+
+    def newException(ex: Exception): Unit = {
+      Platform.runLater(() => {
+        txaLog.appendText("Exception occured: " + ex.toString)
+        tabLog.getTabPane.getSelectionModel.select(tabLog)
+      })
+
+      val dialog = ViewFactory.newExceptionDialogue(msg = "You found a bug.", ex = ex)
+      dialog.showAndWait()
+    }
   } //class ReceiveHandler
 }
 
