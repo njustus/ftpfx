@@ -7,9 +7,14 @@
 	-fx-background-color:#CCFF99;
 }
 .label {
-	-fx-font-size: 11px;
+	-fx-font-size: 12px;
 	-fx-font-family: "sans-serif";
 	-fx-fill: black;
+}
+.text {
+	-fx-font-size: 12px;
+	-fx-font-family: "sans-serif";
+	-fx-fill: black;	
 }
 .button {
 	-fx-background-color:

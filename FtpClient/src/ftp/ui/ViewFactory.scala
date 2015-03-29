@@ -42,6 +42,9 @@ import scala.collection.JavaConverters._
  * [[http://code.makery.ch/blog/javafx-dialogs-official/]]
  */
 object ViewFactory {
+
+  private val dialogTheme = ConfigObj.getRsc("/style/dialogs.css")
+
   /**
    * Generates a new TreeView from the given file.
    *
@@ -136,6 +139,7 @@ object ViewFactory {
    */
   def newErrorDialog(title: String = "Error", header: String = "An error occured!", msg: String) = {
     val dialog = new Alert(AlertType.ERROR)
+    dialog.getDialogPane.getStylesheets.add(dialogTheme)
     dialog.setTitle(title)
     dialog.setHeaderText(header)
     dialog.setContentText(msg)
@@ -154,6 +158,7 @@ object ViewFactory {
    */
   def newWarningDialog(title: String = "Warning", header: String = "Attention", msg: String) = {
     val dialog = new Alert(AlertType.WARNING)
+    dialog.getDialogPane.getStylesheets.add(dialogTheme)
     dialog.setTitle(title)
     dialog.setHeaderText(header)
     dialog.setContentText(msg)
@@ -172,6 +177,7 @@ object ViewFactory {
    */
   def newInformationDialog(title: String = "Information", header: String = "Information:", msg: String) = {
     val dialog = new Alert(AlertType.INFORMATION)
+    dialog.getDialogPane.getStylesheets.add(dialogTheme)
     dialog.setTitle(title)
     dialog.setHeaderText(header)
     dialog.setContentText(msg)
@@ -186,22 +192,29 @@ object ViewFactory {
     }
     //setup an information dialog
     val dialog = newInformationDialog(title, header, msg)
+    dialog.getDialogPane.getStylesheets.add(dialogTheme)
+    dialog.getDialogPane.setMinSize(200, 200)
+    //    dialog.setHeight(200)
+    //    dialog.setWidth(200)
 
+    val pane = new GridPane()
+    pane.setId("info-content-grid")
+    var lineIndex = 0
     //add the custom informations
-    val lines = infos.keys.map { key =>
+    infos.keys.foreach { key =>
       //create UI-Components from the key & value
       val keyLbl = new Text(key.toString)
       //key in bold
       keyLbl.setId("bold-text")
       val valueLbl = new Text(getValue(infos.get(key)))
-      val pane = new HBox(10)
-      pane.getChildren.addAll(keyLbl, valueLbl)
-      pane
-    }.toList
+      valueLbl.setId("centered-value")
 
-    val pane = new VBox()
-    pane.getChildren.addAll(lines)
-    dialog.getDialogPane().setExpandableContent(pane)
+      pane.add(keyLbl, 0, lineIndex)
+      pane.add(valueLbl, 1, lineIndex)
+      lineIndex += 1
+    }
+
+    dialog.getDialogPane().setContent(pane)
     dialog
   }
 
@@ -217,6 +230,7 @@ object ViewFactory {
    */
   def newExceptionDialog(title: String = "EXCEPTION - ERROR", header: String = "Oups that shouldn't happen:", msg: String, ex: Exception) = {
     val dialog = new Alert(AlertType.ERROR)
+    dialog.getDialogPane.getStylesheets.add(dialogTheme)
     dialog.setTitle(title)
     dialog.setHeaderText(header)
     dialog.setContentText(msg)
@@ -263,6 +277,7 @@ object ViewFactory {
 
     //setup the dialog with the language-keys
     val dialog = new TextInputDialog("/")
+    dialog.getDialogPane.getStylesheets().add(ConfigObj.getCss())
     dialog.setTitle(getL("remote-root-chooser-title"))
     dialog.setHeaderText(getL("remote-root-chooser-header"))
     dialog.setContentText(getL("remote-root-chooser-content"))
