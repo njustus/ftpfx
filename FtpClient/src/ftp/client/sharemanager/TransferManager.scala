@@ -12,13 +12,14 @@ import ftp.ui.errorhandle.ErrorHandle
  * This manager transfers files to the ftpserver and downloads files from the ftpserver.
  *
  * It uses Upload-/Download-Messages for the files that should be transfered.<br/><br/>
- * <b>If the client is null this actor does nothing by default.</b>
+ * '''If the client is null this actor does nothing by default.'''
  *
  * @param ftpClient - the  FtpClient-Connection
  */
 class TransferManager(private val ftpClient: FtpClient, private val rc: Receivable, private val exh: ErrorHandle) extends Actor {
   def act(): Unit = loop {
     react {
+      //uploads the list from the Upload()-object
       case msg: Upload if (ftpClient != null) => {
         msg.getFiles.foreach {
           _ match {
@@ -31,7 +32,8 @@ class TransferManager(private val ftpClient: FtpClient, private val rc: Receivab
             case _                              => rc.error("Skipping: unknown file format.")
           }
         }
-      }
+      } //case msg
+      //downloads the list from the Download()-object
       case msg: Download if (ftpClient != null) => {
         msg.getFiles.foreach {
           _ match {
@@ -44,8 +46,8 @@ class TransferManager(private val ftpClient: FtpClient, private val rc: Receivab
             case _ => rc.error("Skipping: unknown file format.")
           }
         }
-      }
+      } //case msg
       case msg: Exit => this.exit()
-    }
-  }
+    } //react
+  } //act()
 }

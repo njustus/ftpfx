@@ -1,7 +1,10 @@
 package ftp.client.filesystem
 
 /**
- * This class describes remote (ftp) files.
+ * Describes remote files.
+ *
+ * Implementation for [[ftp.client.filesystem.FileDescriptor]].
+ *
  */
 class RemoteFile(private val name: String, private val isdir: Boolean = false) extends FileDescriptor {
   def getAbsoluteFilename(): String = name

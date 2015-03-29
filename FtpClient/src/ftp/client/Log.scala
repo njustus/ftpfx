@@ -3,9 +3,11 @@ package ftp.client
 import ftp.response.Receivable
 
 /**
- * This class generates the logs for the Ftp-connection.
+ * Generates the logs for the Ftp-connection.
+ *
+ * @param rc the receivable in which the logs should be printed
  */
-class Log(private val rc: Receivable) {
+private[client] class Log(private val rc: Receivable) {
 
   private var lastResult: Boolean = false;
 
