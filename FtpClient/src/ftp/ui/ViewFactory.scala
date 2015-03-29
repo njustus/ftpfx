@@ -28,11 +28,17 @@ import java.io.PrintWriter
 import javafx.scene.layout.Priority
 import javafx.scene.control.TextInputDialog
 import ftp.util.ConfigObj
+import javafx.scene.layout.VBox
+import javafx.scene.text.Text
+import javafx.scene.layout.HBox
+
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * Creates JavaFx-components.
  *
- * For further informations about Dialogues:
+ * For further informations about Dialogs:
  * [[http://code.makery.ch/blog/javafx-dialogs-official/]]
  */
 object ViewFactory {
@@ -123,9 +129,9 @@ object ViewFactory {
    * Creates a new error-dialgue with the given content.
    *
    * This method uses the [[javafx.scene.control.Alert]] from JavaFX.
-   * @param title The title of the dialogue-box
-   * @param header The header-line of the dialogue-box
-   * @param msg The actual message inside the dialogue-box
+   * @param title The title of the dialog-box
+   * @param header The header-line of the dialog-box
+   * @param msg The actual message inside the dialog-box
    * @return an Alert-Dialogue
    */
   def newErrorDialog(title: String = "Error", header: String = "An error occured!", msg: String) = {
@@ -141,9 +147,9 @@ object ViewFactory {
    * Creates a new warning-dialgue with the given content.
    *
    * This method uses the [[javafx.scene.control.Alert]] from JavaFX.
-   * @param title The title of the dialogue-box
-   * @param header The header-line of the dialogue-box
-   * @param msg The actual message inside the dialogue-box
+   * @param title The title of the dialog-box
+   * @param header The header-line of the dialog-box
+   * @param msg The actual message inside the dialog-box
    * @return an Alert-Dialogue
    */
   def newWarningDialog(title: String = "Warning", header: String = "Attention", msg: String) = {
@@ -159,9 +165,9 @@ object ViewFactory {
    * Creates a new information-dialgue with the given content.
    *
    * This method uses the [[javafx.scene.control.Alert]] from JavaFX.
-   * @param title The title of the dialogue-box
-   * @param header The header-line of the dialogue-box
-   * @param msg The actual message inside the dialogue-box
+   * @param title The title of the dialog-box
+   * @param header The header-line of the dialog-box
+   * @param msg The actual message inside the dialog-box
    * @return an Alert-Dialogue
    */
   def newInformationDialog(title: String = "Information", header: String = "Information:", msg: String) = {
@@ -173,13 +179,39 @@ object ViewFactory {
     dialog
   }
 
+  def newSystemsInfo[T](title: String = "Connection", header: String = "Information:", msg: String, infos: Map[T, T]) = {
+    def getValue(item: Option[T]) = item match {
+      case None    => "not defined"
+      case Some(x) => x.toString
+    }
+    //setup an information dialog
+    val dialog = newInformationDialog(title, header, msg)
+
+    //add the custom informations
+    val lines = infos.keys.map { key =>
+      //create UI-Components from the key & value
+      val keyLbl = new Text(key.toString)
+      //key in bold
+      keyLbl.setId("bold-text")
+      val valueLbl = new Text(getValue(infos.get(key)))
+      val pane = new HBox(10)
+      pane.getChildren.addAll(keyLbl, valueLbl)
+      pane
+    }.toList
+
+    val pane = new VBox()
+    pane.getChildren.addAll(lines)
+    dialog.getDialogPane().setExpandableContent(pane)
+    dialog
+  }
+
   /**
    * Creates a new <b>exception-dialgue</b> with the given content.
    *
    * This method uses the [[javafx.scene.control.Alert]] from JavaFX.
-   * @param title The title of the dialogue-box
-   * @param header The header-line of the dialogue-box
-   * @param msg The actual message inside the dialogue-box
+   * @param title The title of the dialog-box
+   * @param header The header-line of the dialog-box
+   * @param msg The actual message inside the dialog-box
    * @param ex The exception that occured
    * @return an Alert-Dialogue
    */

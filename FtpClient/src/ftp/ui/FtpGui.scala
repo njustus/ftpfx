@@ -402,16 +402,14 @@ class FtpGui extends Application {
   } else receiver.error("Please connect to the server first.")
 
   private def showServerInformation() = if (ftpClient != null) {
-    val infos = ftpClient.getServerInformation()
-    receiver.status(infos);
-    val dialog = ViewFactory.newInformationDialog("Server informations", "Server information:", infos)
+    val infos = ftpClient.getServerInformationAsMap()
+    val dialog = ViewFactory.newSystemsInfo(lang("server-information-title"), lang("server-information-header"), lang("server-information-content"), infos)
     dialog.showAndWait()
   } else receiver.error("Please connect to the server first!")
 
   private def showClientInformation() = if (ftpClient != null) {
-    val infos = ftpClient.getClientInformation()
-    receiver.status(infos);
-    val dialog = ViewFactory.newInformationDialog("Client informations", "Client information:", infos)
+    val infos = ftpClient.getClientInformationAsMap()
+    val dialog = ViewFactory.newSystemsInfo(lang("client-information-title"), lang("client-information-header"), lang("client-information-content"), infos)
     dialog.showAndWait()
   } else receiver.error("Please connect to the server first!")
 
