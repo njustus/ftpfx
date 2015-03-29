@@ -211,11 +211,7 @@ class FtpGui extends Application {
    * Method invoked when the last window is closed or the application is stopped.
    */
   override def stop() = {
-    if (trManager != null)
-      trManager ! Exit() //stop the actor
-
-    if (ftpClient != null)
-      ftpClient.disconnect()
+    disconnect()
   }
 
   /**
@@ -364,10 +360,16 @@ class FtpGui extends Application {
 
   /**
    * Disconnects the client and resets the object.
+   * (Also stops the transfer-actor.)
    */
-  private def disconnect() = if (ftpClient != null) {
-    ftpClient.disconnect()
-    ftpClient = null
+  private def disconnect() = {
+    if (trManager != null)
+      trManager ! Exit() //stop the actor
+
+    if (ftpClient != null) {
+      ftpClient.disconnect()
+      ftpClient = null
+    }
   }
 
   /**
@@ -426,41 +428,46 @@ class FtpGui extends Application {
     trManager ! Upload(selectedElements)
   } else if (ev.getSource == btnDownload) {
     val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems.map(_.getValue).toList
+    //get the active element from the download-ComboBox
+    //transform it into an absolute path
+    val destination = downloadDir.getSelectionModel.getSelectedItem.toAbsolutePath()
 
-    trManager ! Download(selectedElements, downloadDir.getSelectionModel.getSelectedItem.toAbsolutePath().toString())
+    trManager ! Download(selectedElements, destination.toString())
   }
 
   /**
-   * Handler for the logs.
+   * Observer-/Handler for the logs.
    */
   private class ReceiveHandler extends MessageHandler {
-    def error(msg: String): Unit = {
-      Platform.runLater(() => {
-        txaLog.appendText(s"ERROR: $msg\n")
-        tabLog.getTabPane.getSelectionModel.select(tabLog)
+    /*
+     * Implementation-info:
+     * All methods need to modify UI-Components,
+     * so every method-body is executed inside the JavaFX-EDT
+     */
 
-        val dialog = ViewFactory.newErrorDialog(msg = msg)
-        //cause runnables can't return values.. java... -.-
-        val opt = dialog.showAndWait()
-      })
-    }
+    def error(msg: String): Unit = Platform.runLater(() => {
+      txaLog.appendText(s"ERROR: $msg\n")
+      tabLog.getTabPane.getSelectionModel.select(tabLog)
+
+      val dialog = ViewFactory.newErrorDialog(msg = msg)
+      //cause runnables can't return values.. java... -.-
+      val opt = dialog.showAndWait()
+    })
     def newMsg(msg: String): Unit = Platform.runLater(() => txaLog.appendText(msg + "\n"))
     def status(msg: String): Unit = Platform.runLater(() => {
+      //text starts with Upload/Download, so append it to the transferlog
       if (msg.startsWith("Download") || msg.startsWith("Upload:")) txaLoads.appendText(msg + "\n")
       else txaLog.appendText(msg + "\n")
     })
 
-    def newException(ex: Exception): Unit = {
-      Platform.runLater(() => {
-        txaLog.appendText("Exception occured: " + ex.toString)
-        tabLog.getTabPane.getSelectionModel.select(tabLog)
+    def newException(ex: Exception): Unit = Platform.runLater(() => {
+      txaLog.appendText("Exception occured: " + ex.toString)
+      tabLog.getTabPane.getSelectionModel.select(tabLog)
 
-        val dialog = ViewFactory.newExceptionDialog(msg = "You found a bug.", ex = ex)
-        //cause runnables can't return values.. java... -.-
-        val opt = dialog.showAndWait()
-      })
-
-    }
+      val dialog = ViewFactory.newExceptionDialog(msg = "You found a bug.", ex = ex)
+      //cause runnables can't return values.. java... -.-
+      val opt = dialog.showAndWait()
+    })
   } //class ReceiveHandler
 }
 
