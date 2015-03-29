@@ -13,4 +13,4 @@ In order to use ftpfx you need several important sdk's:
  1. [Scala SDK](http://www.scala-lang.org/download/) >= 2.11.5
  2. [Java JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) >= 8_40
 
-(You need JDK >= 8_40 because standard-dialogues for JavaFX aren't supported below 8_40.)
+(You need JDK >= 8_40 because standard-dialogs for JavaFX aren't supported below 8_40.)
