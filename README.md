@@ -31,14 +31,15 @@ In order to contribute to ftpfx you need to follow these steps:
   1. Open up File - Import - Git - **Projects from Git**
   2. Select "Clone URI"
   3. Setup the upstreams as follows:
-    - URI: https://github.com/nicothm/ftpfx.git
-    - hit next (don't enter any authentication)
-    - Select the **branches** you want to clone, usually the master
-    - Select a **destination** for the new local-git-repository and hit next
-    - Select "import existing projects" and hit next
-    - Ensure that the project "FtpClient" is listed and ticked, then hit finish
+   - URI: https://github.com/nicothm/ftpfx.git
+   - hit next (don't enter any authentication)
+   - Select the **branches** you want to clone, usually the master
+   - Select a **destination** for the new local-git-repository and hit next
+   - Select "import existing projects" and hit next
+   - Ensure that the project "FtpClient" is listed and ticked, then hit finish
 
 Now the project is imported into ScalaIDE/Eclipse. The only thing that's left is to **edit the build path**. So do that:
+
 1. Right click the project
 2. Select Build Path - **Edit Build Path**
 3. Add the following **librarys**:
