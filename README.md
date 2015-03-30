@@ -17,6 +17,7 @@ In order to use ftpfx you need several important sdk's:
 
 # Development
 In order to contribute to ftpfx you need to follow these steps:
+
 1. Get the [Java JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) >= 8_40
 2. Get the [Scala SDK](http://www.scala-lang.org/download/) >= 2.11.5
 3. Get an IDE that can handle Scala:
