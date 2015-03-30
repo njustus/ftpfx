@@ -22,11 +22,13 @@ In order to contribute to ftpfx you need to follow these steps:
 3. Get an IDE that can handle Scala:
   - [Scala-IDE](http://scala-ide.org/)
   - [Eclipse](https://eclipse.org/) with Scala-Plugins
+
 4. Ensure scala and java works by typing the following into a terminal:
   - java -version
   - javac -version
   - scala -version
   - scalac -version
+
 5. Open up your IDE, if it's Scala-IDE or Eclipse do the following:
   1. Open up File - Import - Git - **Projects from Git**
   2. Select "Clone URI"
