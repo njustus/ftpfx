@@ -20,17 +20,17 @@ In order to contribute to ftpfx you need to follow these steps:
 1. Get the [Java JDK](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) >= 8_40
 2. Get the [Scala SDK](http://www.scala-lang.org/download/) >= 2.11.5
 3. Get an IDE that can handle Scala:
-    - [Scala-IDE](http://scala-ide.org/)
-    - [Eclipse](https://eclipse.org/) with Scala-Plugins
+  - [Scala-IDE](http://scala-ide.org/)
+  - [Eclipse](https://eclipse.org/) with Scala-Plugins
 4. Ensure scala and java works by typing the following into a terminal:
-    - java -version
-    - javac -version
-    - scala -version
-    - scalac -version
+  - java -version
+  - javac -version
+  - scala -version
+  - scalac -version
 5. Open up your IDE, if it's Scala-IDE or Eclipse do the following:
-    1. Open up File - Import - Git - **Projects from Git**
-    2. Select "Clone URI"
-    3. Setup the upstreams as follows:
+  1. Open up File - Import - Git - **Projects from Git**
+  2. Select "Clone URI"
+  3. Setup the upstreams as follows:
     - URI: https://github.com/nicothm/ftpfx.git
     - hit next (don't enter any authentication)
     - Select the **branches** you want to clone, usually the master
@@ -42,13 +42,13 @@ Now the project is imported into ScalaIDE/Eclipse. The only thing that's left is
 1. Right click the project
 2. Select Build Path - **Edit Build Path**
 3. Add the following **librarys**:
-    - Java JDK8_40 (should already be added by the ide)
-    - Scala SDK 2.5.11
-    - JUnit 4 (only if you like to run the tests)
+  - Java JDK8_40 (should already be added by the ide)
+  - Scala SDK 2.5.11
+  - JUnit 4 (only if you like to run the tests)
 4. Inside the "Edit Build Path" window go to the **Source** tab and add the following folders:
-    - FtpClient/**rsc**
-    - FtpClient/**src**
-    - FtpClient/**tests**
+  - FtpClient/**rsc**
+  - FtpClient/**src**
+  - FtpClient/**tests**
 5. Wait until the ide has built the workspace/project
 6. **Open** the main-gui-class in **"src/ftp/ui/FtpGui.scala"**
 7. Run this class as **"Scala Application"**
