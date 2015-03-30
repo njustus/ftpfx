@@ -31,20 +31,21 @@ In order to contribute to ftpfx you need to follow these steps:
 5. Open up your IDE, if it's Scala-IDE or Eclipse do the following:
   1. Open up File - Import - Git - **Projects from Git**
   2. Select "Clone URI"
-  3. Setup the upstreams as follows:
-   - URI: https://github.com/nicothm/ftpfx.git
-   - hit next (don't enter any authentication)
-   - Select the **branches** you want to clone, usually the master
-   - Select a **destination** for the new local-git-repository and hit next
-   - Select "import existing projects" and hit next
-   - Ensure that the project "FtpClient" is listed and ticked, then hit finish
+  3. Setup the upstream as follows:
+    - URI: https://github.com/nicothm/ftpfx.git
+    - hit next (don't enter any authentication)
+  4. Select the **branches** you want to clone, usually the master
+  5. Select a **destination** for the new local-git-repository and hit next
+  6. Select **"import existing projects"** and hit next
+  7. Ensure that the **project "FtpClient"** is listed and ticked, then hit finish
 
-Now the project is imported into ScalaIDE/Eclipse. The only thing that's left is to **edit the build path**. So do that:
+Now the project is imported into ScalaIDE/Eclipse. 
+The only thing that's left is to **edit the build path**. So do that:
 
 1. Right click the project
 2. Select Build Path - **Edit Build Path**
 3. Add the following **librarys**:
-  - Java JDK8_40 (should already be added by the ide)
+  - Java JDK8_40
   - Scala SDK 2.5.11
   - JUnit 4 (only if you like to run the tests)
 4. Inside the "Edit Build Path" window go to the **Source** tab and add the following folders:
