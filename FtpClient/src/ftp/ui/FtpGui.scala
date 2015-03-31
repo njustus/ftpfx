@@ -420,18 +420,18 @@ class FtpGui extends Application {
   /**
    * Handles the file transfers.
    */
-  private def shareFiles(ev: ActionEvent) = if (ev.getSource == btnUpload) {
+  private def shareFiles(ev: ActionEvent) = if (ev.getSource == btnUpload && ftpClient != null) {
     val selectedElements = this.localFs.getSelectionModel.getSelectedItems.map(_.getValue.path).toList
 
     trManager ! Upload(selectedElements)
-  } else if (ev.getSource == btnDownload) {
+  } else if (ev.getSource == btnDownload && ftpClient != null) {
     val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems.map(_.getValue).toList
     //get the active element from the download-ComboBox
     //transform it into an absolute path
     val destination = downloadDir.getSelectionModel.getSelectedItem.toAbsolutePath()
 
     trManager ! Download(selectedElements, destination.toString())
-  }
+  }else receiver.error("Please connect to the server before starting a transfer.")
 
   /**
    * Observer-/Handler for the logs.
