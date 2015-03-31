@@ -153,6 +153,9 @@ private object DefaultValues {
     "local-root" -> "Set local root...",
     "remote-root" -> "Set remote root...",
     "local-root-chooser-title" -> "Set local root directory",
+    "remote-root-chooser-title" -> "Set remote root directory",
+    "remote-root-chooser-header" -> "Setup the remote root directory.",
+    "remote-root-chooser-content" -> "Please enter the new root path:",
     "exit" -> "Exit",
     //-- Helpmenue
     "client-information-item" -> "Client information",
@@ -177,5 +180,13 @@ private object DefaultValues {
     "download-chooser-title" -> "Set download directory",
     //Log-tabbar
     "loads-tab" -> "Up-/Downloads",
-    "log-tab" -> "Log")
+    "log-tab" -> "Log",
+    //Client-informations
+    "client-information-title" -> "Client information",
+    "client-information-header" -> "Informations about this computer.",
+    "client-information-content" -> "Below are informations about this local computer.",
+    //Server-informations
+    "server-information-title" -> "Server information",
+    "server-information-header" -> "Informations about the connected FTP-Server.",
+    "server-information-content" -> "Below are informations about the FTP-Server.")
 }

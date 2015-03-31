@@ -58,14 +58,17 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.input.KeyCode
 import ftp.ui.listeners.RemoteItemChangeListener
 import ftp.client.filesystem.WrappedPath
+import ftp.response.MessageHandler
+import ftp.ui.errorhandle.ExceptionHandler
+import ftp.ui.errorhandle.ErrorHandle
 
 /**
  * Used for the FX-GUI.
  */
 class FtpGui extends Application {
   private var ftpClient: FtpClient = null
-  private val receiver: Receivable = new ReceiveHandler
-
+  private val receiver: MessageHandler = new ReceiveHandler
+  private val exh: ErrorHandle = new ExceptionHandler(receiver)
   private var primaryStage: Stage = null
   //menue
   private val menueBar = new MenuBar()
@@ -93,6 +96,7 @@ class FtpGui extends Application {
   //added in genFileSystemView() together with the download-directory-chooser
   private val btnUpload = new Button(lang("upload-btn"))
   private val btnDownload = new Button(lang("download-btn"))
+  private val btnChangeDownloadDir = new Button(lang("download-choose-entry"))
   //transfermanager for the up-/downloads
   private var trManager: TransferManager = null
   //Download-directory
@@ -140,17 +144,10 @@ class FtpGui extends Application {
     val chLocalMnItem = new MenuItem(lang("local-root"))
     val chRemoteMnItem = new MenuItem(lang("remote-root"))
     val exitMnItem = new MenuItem(lang("exit"))
-    chLocalMnItem.setOnAction((ev: ActionEvent) => {
-      val chooser = new DirectoryChooser()
-      chooser.setTitle(lang("local-root-chooser-title"))
-      val file = chooser.showDialog(primStage)
-      if (file != null) {
-        val path = file.toPath()
-        localFs.setRoot(ViewFactory.newLazyView(path))
-      }
-    })
-
-    chRemoteMnItem.setOnAction((ev: ActionEvent) => ???)
+    //changes the local root view
+    chLocalMnItem.setOnAction((ev: ActionEvent) => changeLocalRootDir())
+    //changes the remote's root directory
+    chRemoteMnItem.setOnAction((ev: ActionEvent) => changeRemoteRootDir())
     exitMnItem.setOnAction((ev: ActionEvent) => primStage.close())
     fileMenue.getItems.addAll(chLocalMnItem, chRemoteMnItem, exitMnItem)
 
@@ -169,7 +166,7 @@ class FtpGui extends Application {
     btnConnect.setId("green")
     btnConnect.setOnAction((ev: ActionEvent) => connect())
     btnDisconnect.setId("red")
-    btnDisconnect.setOnAction((ev: ActionEvent) => if (ftpClient != null) ftpClient.disconnect())
+    btnDisconnect.setOnAction((ev: ActionEvent) => disconnect())
     btnUpload.setOnAction((ev: ActionEvent) => shareFiles(ev))
     btnDownload.setOnAction((ev: ActionEvent) => shareFiles(ev))
     btnUpload.setId("upload-btn")
@@ -214,11 +211,7 @@ class FtpGui extends Application {
    * Method invoked when the last window is closed or the application is stopped.
    */
   override def stop() = {
-    if (trManager != null)
-      trManager ! Exit() //stop the actor
-
-    if (ftpClient != null)
-      ftpClient.disconnect()
+    disconnect()
   }
 
   /**
@@ -245,14 +238,13 @@ class FtpGui extends Application {
 
     //download directory
     val downloadPane = new HBox()
-    val chooseView = Paths.get(lang("download-choose-entry"))
-    val l: ObservableList[Path] = FXCollections.observableArrayList(Paths.get(conf("download-dir")), Paths.get(conf("local-start-dir")), chooseView);
+    val l: ObservableList[Path] = FXCollections.observableArrayList(Paths.get(conf("download-dir")), Paths.get(conf("local-start-dir")));
     downloadPane.setId("downloadPane")
     downloadDir.setItems(l)
     downloadDir.getSelectionModel().selectFirst()
     downloadDir.setMinWidth(150)
     //handler for showing the directory-chooser
-    downloadDir.setOnAction((ev: ActionEvent) => if (downloadDir.getSelectionModel.getSelectedItem == chooseView) {
+    btnChangeDownloadDir.setOnAction((ev: ActionEvent) => {
       val chooser = new DirectoryChooser()
       chooser.setTitle(lang("download-chooser-title"))
       val file = chooser.showDialog(primaryStage)
@@ -262,7 +254,9 @@ class FtpGui extends Application {
         downloadDir.getSelectionModel().selectFirst()
       }
     })
-    downloadPane.getChildren.addAll(newBoldText(lang("download-dir")), downloadDir, btnUpload, btnDownload)
+
+    downloadPane.getChildren.addAll(newBoldText(lang("download-dir")),
+      downloadDir, btnChangeDownloadDir, btnUpload, btnDownload)
 
     //only needed for setup the download-directory below the fs-view
     val root = new VBox()
@@ -283,7 +277,7 @@ class FtpGui extends Application {
    * This method uses the factory for generating the view.
    */
   private def genLocalFs(): TreeView[WrappedPath] = {
-    val next = Paths.get(System.getProperty("user.home"))
+    val next = Paths.get(conf("local-start-dir"))
     val root = ViewFactory.newLazyView(next)
     val view = new TreeView[WrappedPath](root)
 
@@ -298,7 +292,7 @@ class FtpGui extends Application {
    * <li>This method uses the factory for generating the view.</li>
    */
   private def genRemoteFs(): TreeView[FileDescriptor] = {
-    val tree = new TreeView[FileDescriptor](new CheckBoxTreeItem[FileDescriptor](new RemoteFile(lang("default-remote-entry"))))
+    val tree = new TreeView[FileDescriptor](new TreeItem[FileDescriptor](new RemoteFile(lang("default-remote-entry"))))
 
     tree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     return tree
@@ -328,6 +322,7 @@ class FtpGui extends Application {
 
     remoteFs.setRoot(root)
   }
+
   /*
    * ------------- EventHandlers --------------------
    * -----------------------------------------------
@@ -347,57 +342,76 @@ class FtpGui extends Application {
     if (servername.isEmpty() || txtPort.getText.isEmpty()) receiver.error("Specify Server & Port.")
     else if (username.isEmpty() || password.isEmpty()) receiver.error("Specify username/password.")
     else {
-      try {
+      exh.catching {
         ftpClient = ClientFactory.newBaseClient(servername, port, receiver)
-        ftpClient.connect(username, password)
-        actualDir = ftpClient.pwd()
-        userDir = ftpClient.ls()
-        genRemoteFs(actualDir, userDir)
-        //setup the transfer-manager
-        if (trManager != null) trManager ! Exit()
-        trManager = new TransferManager(ftpClient, receiver)
-        trManager.start()
-      } catch {
-        case ex: Exception => handleException(ex)
+        if (ftpClient.connect(username, password)) {
+          actualDir = ftpClient.pwd()
+          userDir = ftpClient.ls()
+          genRemoteFs(actualDir, userDir)
+          //setup the transfer-manager
+          if (trManager != null) trManager ! Exit()
+          trManager = new TransferManager(ftpClient, receiver, exh)
+          trManager.start()
+        }
       }
     }
 
   } //connect
 
   /**
-   * Global-Handler for exceptions
+   * Disconnects the client and resets the object.
+   * (Also stops the transfer-actor.)
    */
-  private def handleException(e: Exception) = {
-    /**
-     * TODO implement wright error handling..
-     *  --> right it to the log and informate the user.
-     */
-    e match {
-      case (_: java.net.ConnectException | _: java.net.SocketException) => receiver.error(e.getMessage)
-      case ex: java.net.UnknownHostException => receiver.error("Unknown Host: " + txtServer.getText)
-      case _ => ViewFactory.newExceptionDialogue(msg = "Looks like you found a bug or missing implementation:", ex = e)
+  private def disconnect() = {
+    if (trManager != null)
+      trManager ! Exit() //stop the actor
+
+    if (ftpClient != null) {
+      ftpClient.disconnect()
+      ftpClient = null
     }
   }
 
-  private def showServerInformation() = {
-    //TODO show an information-dialog
-    if (ftpClient != null) {
-      val infos = ftpClient.getServerInformation()
-      receiver.status(infos);
-      ViewFactory.newInformationDialogue("Server informations", "Server information:", infos)
-    } else
-      receiver.error("Please connect to the server first!")
+  /**
+   * Changes the local root dir.
+   */
+  private def changeLocalRootDir() = {
+    val chooser = new DirectoryChooser()
+    chooser.setTitle(lang("local-root-chooser-title"))
+
+    val file = chooser.showDialog(primaryStage)
+    if (file != null) {
+      val path = file.toPath()
+      localFs.setRoot(ViewFactory.newLazyView(path))
+    }
   }
 
-  private def showClientInformation() = {
-    //TODO show an information-dialog
-    if (ftpClient != null) {
-      val infos = ftpClient.getClientInformation()
-      receiver.status(infos);
-      ViewFactory.newInformationDialogue("Server informations", "Server information:", infos)
-    } else
-      receiver.error("Please connect to the server first!")
-  }
+  /**
+   * Changes the remote root dir.
+   */
+  private def changeRemoteRootDir() = if (ftpClient != null) {
+    //show input-dialog and set the root
+    val dialog = ViewFactory.newChangeRemoteRootDialog()
+    val optResult = dialog.showAndWait()
+    if (optResult.isPresent) {
+      val path = optResult.get
+      ftpClient.cd(path)
+      val content = ftpClient.list()
+      genRemoteFs(path, content)
+    }
+  } else receiver.error("Please connect to the server first.")
+
+  private def showServerInformation() = if (ftpClient != null) {
+    val infos = ftpClient.getServerInformationAsMap()
+    val dialog = ViewFactory.newSystemsInfo(lang("server-information-title"), lang("server-information-header"), lang("server-information-content"), infos)
+    dialog.showAndWait()
+  } else receiver.error("Please connect to the server first!")
+
+  private def showClientInformation() = if (ftpClient != null) {
+    val infos = ftpClient.getClientInformationAsMap()
+    val dialog = ViewFactory.newSystemsInfo(lang("client-information-title"), lang("client-information-header"), lang("client-information-content"), infos)
+    dialog.showAndWait()
+  } else receiver.error("Please connect to the server first!")
 
   private def showAbout() = {
     ???
@@ -406,34 +420,51 @@ class FtpGui extends Application {
   /**
    * Handles the file transfers.
    */
-  private def shareFiles(ev: ActionEvent) = {
-    if (ev.getSource == btnUpload) {
-      val selectedElements = this.localFs.getSelectionModel.getSelectedItems.map(_.getValue.path).toList
+  private def shareFiles(ev: ActionEvent) = if (ev.getSource == btnUpload) {
+    val selectedElements = this.localFs.getSelectionModel.getSelectedItems.map(_.getValue.path).toList
 
-      trManager ! Upload(selectedElements)
-    } else if (ev.getSource == btnDownload) {
-      val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems.map(_.getValue).toList
+    trManager ! Upload(selectedElements)
+  } else if (ev.getSource == btnDownload) {
+    val selectedElements = this.remoteFs.getSelectionModel.getSelectedItems.map(_.getValue).toList
+    //get the active element from the download-ComboBox
+    //transform it into an absolute path
+    val destination = downloadDir.getSelectionModel.getSelectedItem.toAbsolutePath()
 
-      trManager ! Download(selectedElements, downloadDir.getSelectionModel.getSelectedItem.toAbsolutePath().toString())
-    }
+    trManager ! Download(selectedElements, destination.toString())
   }
 
   /**
-   * Handler for the logs.
+   * Observer-/Handler for the logs.
    */
-  private class ReceiveHandler extends Receivable {
-    def error(msg: String): Unit = {
-      Platform.runLater(() => {
-        txaLog.appendText(s"ERROR: $msg\n")
-        tabLog.getTabPane.getSelectionModel.select(tabLog)
-      })
+  private class ReceiveHandler extends MessageHandler {
+    /*
+     * Implementation-info:
+     * All methods need to modify UI-Components,
+     * so every method-body is executed inside the JavaFX-EDT
+     */
 
-      ViewFactory.newErrorDialogue(msg = msg)
-    }
-    def newMsg(msg: String): Unit = Platform.runLater(() => { txaLog.appendText(msg + "\n") })
+    def error(msg: String): Unit = Platform.runLater(() => {
+      txaLog.appendText(s"ERROR: $msg\n")
+      tabLog.getTabPane.getSelectionModel.select(tabLog)
+
+      val dialog = ViewFactory.newErrorDialog(msg = msg)
+      //cause runnables can't return values.. java... -.-
+      val opt = dialog.showAndWait()
+    })
+    def newMsg(msg: String): Unit = Platform.runLater(() => txaLog.appendText(msg + "\n"))
     def status(msg: String): Unit = Platform.runLater(() => {
+      //text starts with Upload/Download, so append it to the transferlog
       if (msg.startsWith("Download") || msg.startsWith("Upload:")) txaLoads.appendText(msg + "\n")
       else txaLog.appendText(msg + "\n")
+    })
+
+    def newException(ex: Exception): Unit = Platform.runLater(() => {
+      txaLog.appendText("Exception occured: " + ex.toString)
+      tabLog.getTabPane.getSelectionModel.select(tabLog)
+
+      val dialog = ViewFactory.newExceptionDialog(msg = "You found a bug.", ex = ex)
+      //cause runnables can't return values.. java... -.-
+      val opt = dialog.showAndWait()
     })
   } //class ReceiveHandler
 }

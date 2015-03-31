@@ -8,12 +8,14 @@ import java.util.Scanner
 import ftp.response.Receivable
 
 /**
- * This factory is used for creating Ftp-Clients.
+ * This factory creates Ftp-Clients.
+ *
  * All methods returning an Object with the type FtpClient.
  */
 object ClientFactory {
   /**
    * Creates a simple base client for standard usage.
+   *
    * It uses the given servername and port for connecting to the server.
    * The receivable-object gets all incoming (may be error) messages.
    *
@@ -32,7 +34,8 @@ object ClientFactory {
 
   /**
    * Creates a new simple base client for standard usage.
-   * This method uses the <B>standard control port (21)</B> for the control socket.
+   *
+   * This method uses the '''standard control port (21)''' for the control socket-port.
    *
    * @implnode This method simply calls newBaseClient(serverName, 21, rc)
    *

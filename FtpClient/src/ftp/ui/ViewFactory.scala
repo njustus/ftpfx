@@ -26,14 +26,25 @@ import javafx.scene.control.TextArea
 import java.io.StringWriter
 import java.io.PrintWriter
 import javafx.scene.layout.Priority
+import javafx.scene.control.TextInputDialog
+import ftp.util.ConfigObj
+import javafx.scene.layout.VBox
+import javafx.scene.text.Text
+import javafx.scene.layout.HBox
+
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * Creates JavaFx-components.
  *
- * For further informations about Dialogues:
+ * For further informations about Dialogs:
  * [[http://code.makery.ch/blog/javafx-dialogs-official/]]
  */
 object ViewFactory {
+
+  private val dialogTheme = ConfigObj.getRsc("/style/dialogs.css")
+
   /**
    * Generates a new TreeView from the given file.
    *
@@ -121,71 +132,108 @@ object ViewFactory {
    * Creates a new error-dialgue with the given content.
    *
    * This method uses the [[javafx.scene.control.Alert]] from JavaFX.
-   * @param title The title of the dialogue-box
-   * @param header The header-line of the dialogue-box
-   * @param msg The actual message inside the dialogue-box
+   * @param title The title of the dialog-box
+   * @param header The header-line of the dialog-box
+   * @param msg The actual message inside the dialog-box
    * @return an Alert-Dialogue
    */
-  def newErrorDialogue(title: String = "Error", header: String = "An error occured!", msg: String) = {
-    val dialogue = new Alert(AlertType.ERROR)
-    dialogue.setTitle(title)
-    dialogue.setHeaderText(header)
-    dialogue.setContentText(msg)
+  def newErrorDialog(title: String = "Error", header: String = "An error occured!", msg: String) = {
+    val dialog = new Alert(AlertType.ERROR)
+    dialog.getDialogPane.getStylesheets.add(dialogTheme)
+    dialog.setTitle(title)
+    dialog.setHeaderText(header)
+    dialog.setContentText(msg)
 
-    dialogue
+    dialog
   }
 
   /**
    * Creates a new warning-dialgue with the given content.
    *
    * This method uses the [[javafx.scene.control.Alert]] from JavaFX.
-   * @param title The title of the dialogue-box
-   * @param header The header-line of the dialogue-box
-   * @param msg The actual message inside the dialogue-box
+   * @param title The title of the dialog-box
+   * @param header The header-line of the dialog-box
+   * @param msg The actual message inside the dialog-box
    * @return an Alert-Dialogue
    */
-  def newWarningDialogue(title: String = "Warning", header: String = "Attention", msg: String) = {
-    val dialogue = new Alert(AlertType.WARNING)
-    dialogue.setTitle(title)
-    dialogue.setHeaderText(header)
-    dialogue.setContentText(msg)
+  def newWarningDialog(title: String = "Warning", header: String = "Attention", msg: String) = {
+    val dialog = new Alert(AlertType.WARNING)
+    dialog.getDialogPane.getStylesheets.add(dialogTheme)
+    dialog.setTitle(title)
+    dialog.setHeaderText(header)
+    dialog.setContentText(msg)
 
-    dialogue
+    dialog
   }
 
   /**
    * Creates a new information-dialgue with the given content.
    *
    * This method uses the [[javafx.scene.control.Alert]] from JavaFX.
-   * @param title The title of the dialogue-box
-   * @param header The header-line of the dialogue-box
-   * @param msg The actual message inside the dialogue-box
+   * @param title The title of the dialog-box
+   * @param header The header-line of the dialog-box
+   * @param msg The actual message inside the dialog-box
    * @return an Alert-Dialogue
    */
-  def newInformationDialogue(title: String = "Information", header: String = "Information:", msg: String) = {
-    val dialogue = new Alert(AlertType.INFORMATION)
-    dialogue.setTitle(title)
-    dialogue.setHeaderText(header)
-    dialogue.setContentText(msg)
+  def newInformationDialog(title: String = "Information", header: String = "Information:", msg: String) = {
+    val dialog = new Alert(AlertType.INFORMATION)
+    dialog.getDialogPane.getStylesheets.add(dialogTheme)
+    dialog.setTitle(title)
+    dialog.setHeaderText(header)
+    dialog.setContentText(msg)
 
-    dialogue
+    dialog
+  }
+
+  def newSystemsInfo[T](title: String = "Connection", header: String = "Information:", msg: String, infos: Map[T, T]) = {
+    def getValue(item: Option[T]) = item match {
+      case None    => "not defined"
+      case Some(x) => x.toString
+    }
+    //setup an information dialog
+    val dialog = newInformationDialog(title, header, msg)
+    dialog.getDialogPane.getStylesheets.add(dialogTheme)
+    dialog.getDialogPane.setMinSize(200, 200)
+    //    dialog.setHeight(200)
+    //    dialog.setWidth(200)
+
+    val pane = new GridPane()
+    pane.setId("info-content-grid")
+    var lineIndex = 0
+    //add the custom informations
+    infos.keys.foreach { key =>
+      //create UI-Components from the key & value
+      val keyLbl = new Text(key.toString)
+      //key in bold
+      keyLbl.setId("bold-text")
+      val valueLbl = new Text(getValue(infos.get(key)))
+      valueLbl.setId("centered-value")
+
+      pane.add(keyLbl, 0, lineIndex)
+      pane.add(valueLbl, 1, lineIndex)
+      lineIndex += 1
+    }
+
+    dialog.getDialogPane().setContent(pane)
+    dialog
   }
 
   /**
    * Creates a new <b>exception-dialgue</b> with the given content.
    *
    * This method uses the [[javafx.scene.control.Alert]] from JavaFX.
-   * @param title The title of the dialogue-box
-   * @param header The header-line of the dialogue-box
-   * @param msg The actual message inside the dialogue-box
+   * @param title The title of the dialog-box
+   * @param header The header-line of the dialog-box
+   * @param msg The actual message inside the dialog-box
    * @param ex The exception that occured
    * @return an Alert-Dialogue
    */
-  def newExceptionDialogue(title: String = "EXCEPTION - ERROR", header: String = "Oups that shouldn't happen:", msg: String, ex: Exception) = {
-    val dialogue = new Alert(AlertType.ERROR)
-    dialogue.setTitle(title)
-    dialogue.setHeaderText(header)
-    dialogue.setContentText(msg)
+  def newExceptionDialog(title: String = "EXCEPTION - ERROR", header: String = "Oups that shouldn't happen:", msg: String, ex: Exception) = {
+    val dialog = new Alert(AlertType.ERROR)
+    dialog.getDialogPane.getStylesheets.add(dialogTheme)
+    dialog.setTitle(title)
+    dialog.setHeaderText(header)
+    dialog.setContentText(msg)
 
     //write the stacktrace into a string
     val sw = new StringWriter()
@@ -208,10 +256,32 @@ object ViewFactory {
     pane.add(label, 0, 0)
     pane.add(textArea, 0, 1)
 
-    dialogue.getDialogPane().setMinSize(400, 400)
-    dialogue.getDialogPane().setExpandableContent(pane)
+    dialog.getDialogPane().setMinSize(400, 400)
+    dialog.getDialogPane().setExpandableContent(pane)
 
-    dialogue
+    dialog
+  }
+
+  /**
+   * Creates a dialog for setting the remote-root directory.
+   */
+  def newChangeRemoteRootDialog() = {
+    /*
+     * method for getting the specified keys from the ConfigObj.
+     * This method is a shortcut.
+     */
+    def getL(key: String) = ConfigObj.getL(key) match {
+      case None    => "not defined"
+      case Some(x) => x
+    }
+
+    //setup the dialog with the language-keys
+    val dialog = new TextInputDialog("/")
+    dialog.getDialogPane.getStylesheets().add(ConfigObj.getCss())
+    dialog.setTitle(getL("remote-root-chooser-title"))
+    dialog.setHeaderText(getL("remote-root-chooser-header"))
+    dialog.setContentText(getL("remote-root-chooser-content"))
+    dialog
   }
 
   @deprecated

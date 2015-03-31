@@ -1,0 +1,24 @@
+/*
+	Defines the standard-theme for the popup-dialogs.
+*/
+.label {
+	-fx-font-size: 12px;
+	-fx-font-family: "sans-serif";
+	-fx-fill: black;
+}
+.text {
+	-fx-font-size: 12px;
+	-fx-font-family: "sans-serif";
+	-fx-fill: black;	
+}
+#info-content-grid {
+	-fx-hgap: 10;
+	-fx-vgap: 10;
+}
+
+#bold-text {
+	-fx-font-weight: bold;
+}
+#centered-value {
+	-fx-alignment: center;
+}
