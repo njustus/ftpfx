@@ -61,6 +61,7 @@ import ftp.client.filesystem.WrappedPath
 import ftp.response.MessageHandler
 import ftp.ui.errorhandle.ExceptionHandler
 import ftp.ui.errorhandle.ErrorHandle
+import javafx.scene.control.CheckBox
 
 /**
  * Used for the FX-GUI.
@@ -82,6 +83,7 @@ class FtpGui extends Application {
   private val txtPassword = new PasswordField()
   private val btnConnect = new Button(lang("connect-btn"))
   private val btnDisconnect = new Button(lang("disconnect-btn"))
+  private val cbAnon = new CheckBox(lang("anonymous-login"))
   //Logs
   private val txaLog = new TextArea()
   private val txaLoads = new TextArea()
@@ -109,10 +111,9 @@ class FtpGui extends Application {
    */
   private def conf(key: String): String = ConfigObj.getC(key) match {
     case Some(x) => x
-    case None => {
+    case None =>
       receiver.status(s"The config value for: $key doesn't exist")
       "not defined"
-    }
   }
 
   /**
@@ -122,10 +123,9 @@ class FtpGui extends Application {
    */
   private def lang(key: String): String = ConfigObj.getL(key) match {
     case Some(x) => x
-    case None => {
+    case None =>
       receiver.status(s"The language value for: $key doesn't exist")
       "not defined"
-    }
   }
 
   override def start(primStage: Stage) = {
@@ -175,6 +175,8 @@ class FtpGui extends Application {
     txtPort.setMaxWidth(50)
     txtPassword.setOnKeyPressed((ev: KeyEvent) => if (ev.getCode == KeyCode.ENTER) connect())
 
+    cbAnon.setSelected(false)
+
     top.add(newBoldText(lang("servername")), 0, 0)
     top.add(txtServer, 1, 0)
     top.add(newBoldText(lang("port")), 2, 0)
@@ -185,6 +187,7 @@ class FtpGui extends Application {
     top.add(txtPassword, 3, 1)
     top.add(btnConnect, 4, 1)
     top.add(btnDisconnect, 4, 0)
+    top.add(cbAnon, 5, 1)
 
     root.setCenter(genFileSystemView())
 
@@ -334,10 +337,18 @@ class FtpGui extends Application {
   private def connect() = {
     val servername = txtServer.getText
     val port = txtPort.getText.toInt
-    val username = txtUsername.getText
-    val password = txtPassword.getText
+    var username = new String()
+    var password = new String()
     var userDir = List[FileDescriptor]()
-    var actualDir = ""
+    var actualDir = new String()
+    //anonymous login
+    if (cbAnon.isSelected()) {
+      username = conf("anon-username")
+      password = conf("anon-password")
+    } else { //authenticated login
+      username = txtUsername.getText
+      password = txtPassword.getText
+    }
 
     if (servername.isEmpty() || txtPort.getText.isEmpty()) receiver.error("Specify Server & Port.")
     else if (username.isEmpty() || password.isEmpty()) receiver.error("Specify username/password.")
@@ -431,7 +442,7 @@ class FtpGui extends Application {
     val destination = downloadDir.getSelectionModel.getSelectedItem.toAbsolutePath()
 
     trManager ! Download(selectedElements, destination.toString())
-  }else receiver.error("Please connect to the server before starting a transfer.")
+  } else receiver.error("Please connect to the server before starting a transfer.")
 
   /**
    * Observer-/Handler for the logs.

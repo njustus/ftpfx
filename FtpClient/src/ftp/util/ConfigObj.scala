@@ -76,6 +76,8 @@ object ConfigObj {
     case "software-name" => Some(DefaultValues.swName)
     case "version"       => Some(DefaultValues.swVersion)
     case "port"          => Some(DefaultValues.port)
+    case "anon-username" => Some(DefaultValues.anonUsername)
+    case "anon-password" => Some(DefaultValues.anonPassword)
     case x: String => {
       val value = config.getProperty(x)
       if (value != null) Some(value)
@@ -131,6 +133,8 @@ private object DefaultValues {
   val swName = "NJ's FTP"
   val swVersion = "1.0"
   val port = "Port"
+  val anonUsername = "anonymous"
+  val anonPassword = "anon"
   private val defaultLocalDir = System.getProperty("user.home")
   private val defaultDownloadDir = defaultLocalDir + ConfigObj.ps + "Downloads"
 
@@ -169,6 +173,7 @@ private object DefaultValues {
     "disconnect-btn" -> "Disconnect",
     "upload-btn" -> "Upload",
     "download-btn" -> "Download",
+    "anonymous-login" -> "Login\nanonymously",
     //filesystem-view
     "local-filesystem-title" -> "Local Filesystem",
     "remote-filesystem-title" -> "Remote Filesystem",
