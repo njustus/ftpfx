@@ -26,6 +26,11 @@ trait FtpClient {
    */
   def connect(username: String, password: String): Boolean
   /**
+   * Connects the client via anonymous authentication to the server.
+   */
+  def connectAnonymous() = connect("anonymous", "anon")
+
+  /**
    * Disconnects the client from the sever.
    */
   def disconnect(): Boolean
