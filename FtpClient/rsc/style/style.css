@@ -1,0 +1,56 @@
+/*
+	Non-green gui.
+*/
+.root {
+	
+}
+
+#bold-text {
+	-fx-font-weight: bold;
+}
+
+.label {
+	-fx-font-size: 12px;
+	-fx-font-family: "sans-serif";
+	-fx-fill: black;
+}
+.text {
+	-fx-font-size: 12px;
+	-fx-font-family: "sans-serif";
+	-fx-fill: black;	
+}
+#rootPane {
+	/* top, right, bottom, left */
+	-fx-padding: 10, 15, 25, 15;
+}
+#topGrid {
+	-fx-hgap: 10;
+	-fx-vgap: 10;
+}
+#fsGrid {
+	-fx-padding: 5, 0, 10, 0;
+	-fx-hgap: 10;
+	-fx-vgap: 10;
+}
+
+#centeredView {
+	-fx-padding: 5, 0, 10, 0;
+}
+#connect-btn  {
+	-fx-background-color: linear-gradient(#f0ff35, #a9ff00),
+		radial-gradient(center 50% -40%, radius 200%, #b8ee36 45%, #80c800 50%);
+	-fx-background-radius: 6, 5;
+	-fx-background-insets: 0, 1;
+	-fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.4), 5, 0.0, 0, 1);
+	-fx-text-fill: #395306;
+}
+#disconnect-btn {
+	-fx-background-color: linear-gradient(#ff5400, #be1d00);
+    -fx-background-radius: 6,5;
+    -fx-background-insets: 0;
+    -fx-text-fill: white;
+}
+#downloadPane {
+	-fx-spacing: 10;
+	-fx-alignment: center-left;
+}

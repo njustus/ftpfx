@@ -163,9 +163,9 @@ class FtpGui extends Application {
     //Add menues to the menuebar, add the menuebar
     menueBar.getMenus.addAll(fileMenue, helpMenue)
 
-    btnConnect.setId("green")
+    btnConnect.setId("connect-btn")
     btnConnect.setOnAction((ev: ActionEvent) => connect())
-    btnDisconnect.setId("red")
+    btnDisconnect.setId("disconnect-btn")
     btnDisconnect.setOnAction((ev: ActionEvent) => disconnect())
     btnUpload.setOnAction((ev: ActionEvent) => shareFiles(ev))
     btnDownload.setOnAction((ev: ActionEvent) => shareFiles(ev))
