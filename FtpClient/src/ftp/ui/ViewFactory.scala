@@ -43,7 +43,13 @@ import scala.collection.JavaConverters._
  */
 object ViewFactory {
 
-  private val dialogTheme = ConfigObj.getRsc("/style/dialogs.css")
+  private val dialogTheme = ConfigObj.getRsc("/style/dialogs.css") match {
+    case Left(x) =>
+      println(x);
+      ""
+    //error occured
+    case Right(x) => x
+  }
 
   /**
    * Generates a new TreeView from the given file.
@@ -277,7 +283,11 @@ object ViewFactory {
 
     //setup the dialog with the language-keys
     val dialog = new TextInputDialog("/")
-    dialog.getDialogPane.getStylesheets().add(ConfigObj.getCss())
+    ConfigObj.getCss() match {
+      case Right(x) => dialog.getDialogPane.getStylesheets().add(x)
+      //error occured
+      case Left(x)  => println(x)
+    }
     dialog.setTitle(getL("remote-root-chooser-title"))
     dialog.setHeaderText(getL("remote-root-chooser-header"))
     dialog.setContentText(getL("remote-root-chooser-content"))

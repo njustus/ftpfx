@@ -99,7 +99,15 @@ class FtpGui extends Application {
     top.setId("topGrid")
     root.setTop(top)
     val scene = new Scene(vboxContainer, 800, 700)
-    scene.getStylesheets().add(ConfigObj.getCss())
+
+    ConfigObj.getCss() match {
+      //no error occured
+      case Right(x) => scene.getStylesheets().add(x)
+      //error occured
+      case Left(x) =>
+        val stylesheetPath = x.split(":")(1)
+        receiver.error("Can't load the pathed stylesheet.\nStylesheet passed: " + stylesheetPath)
+    }
 
     //Menues
     //File menue

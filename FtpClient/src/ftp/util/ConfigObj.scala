@@ -110,8 +110,11 @@ object ConfigObj {
     else
       getRsc(getC("theme").get)
 
-  def getRsc(path: String): String =
-    this.getClass.getResource(path).toExternalForm()
+  def getRsc(path: String) = try {
+    Right(this.getClass.getResource(path).toExternalForm())
+  } catch {
+    case _: NullPointerException => Left("Can't load: " + path)
+  }
 
   private def checkConfig(conf: java.util.Properties): Boolean = {
     val origKeys = DefaultValues.defaultConfKeys.keySet

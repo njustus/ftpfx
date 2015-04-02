@@ -28,6 +28,7 @@ class ConfigObjTest {
 
     //2. test if the relative path is correct
     val pathExp = ".*/style/FtpGui.css".r
-    assertTrue(pathExp.findFirstIn(styleRsc).isDefined)
+
+    assertTrue(pathExp.findFirstIn(styleRsc.right.get).isDefined)
   }
 }
