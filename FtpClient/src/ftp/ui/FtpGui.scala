@@ -1,67 +1,29 @@
 package ftp.ui
 
-import java.io.File
-import java.net.SocketException
-import java.net.ConnectException
-import javafx.application.Application
+import java.nio.file.{ Path, Paths }
+
+import javafx.application.{ Application, Platform }
+import javafx.collections.{ FXCollections, ObservableList }
 import javafx.event.ActionEvent
-import javafx.event.EventHandler
 import javafx.geometry.Side
 import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.PasswordField
-import javafx.scene.control.Tab
-import javafx.scene.control.TabPane
-import javafx.scene.control.TextArea
-import javafx.scene.control.TextField
-import javafx.scene.control.TreeItem
-import javafx.scene.control.TreeView
-import javafx.scene.control.Menu
-import javafx.scene.control.MenuBar
-import javafx.scene.control.MenuItem
-import javafx.scene.layout.BorderPane
-import javafx.scene.layout.GridPane
-import javafx.scene.layout.Pane
-import javafx.scene.layout.Background
+import javafx.scene.control.{ Button, CheckBox, ComboBox, Menu, MenuBar, MenuItem, PasswordField, SelectionMode, Tab, TabPane, TextArea, TextField, TreeItem, TreeView }
+import javafx.scene.input.{ KeyCode, KeyEvent }
+import javafx.scene.layout.{ BorderPane, GridPane, HBox, Pane, VBox }
 import javafx.scene.text.Text
-import javafx.stage.Stage
-import ftp.client.ClientFactory
-import ftp.client.FtpClient
-import ftp.response.Receivable
-import ftp.ui.FxEventHandlerImplicits._
-import ftp.util.ImplicitConversions._
-import ftp.util.ConfigObj
-import javafx.scene.layout.VBox
-import javafx.scene.control.CheckBoxTreeItem
-import javafx.scene.control.cell.CheckBoxTreeCell
-import java.nio.file.Path
-import java.nio.file.Paths
-import ftp.client.filesystem.FileDescriptor
-import ftp.client.sharemanager.Transfer
-import ftp.client.filesystem.RemoteFile
-import ftp.client.sharemanager.TransferManager
-import ftp.client.sharemanager.Exit
-import ftp.client.sharemanager.Download
-import ftp.client.sharemanager.Upload
-import javafx.collections.ObservableList
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import javafx.scene.control.SelectionMode
-import javafx.application.Platform
-import javafx.stage.DirectoryChooser
-import java.nio.file.Files
-import javafx.scene.control.ComboBox
-import javafx.collections.ObservableList
-import javafx.collections.FXCollections
-import javafx.scene.layout.HBox
-import javafx.scene.input.KeyEvent
-import javafx.scene.input.KeyCode
-import ftp.ui.listeners.RemoteItemChangeListener
-import ftp.client.filesystem.WrappedPath
+import javafx.stage.{ DirectoryChooser, Stage }
+
+import scala.collection.JavaConversions.asScalaBuffer
+
+import ftp.client.{ ClientFactory, FtpClient }
+import ftp.client.filesystem.{ FileDescriptor, RemoteFile, WrappedPath }
+import ftp.client.sharemanager.{ Download, Exit, TransferManager, Upload }
 import ftp.response.MessageHandler
-import ftp.ui.errorhandle.ExceptionHandler
-import ftp.ui.errorhandle.ErrorHandle
-import javafx.scene.control.CheckBox
+import ftp.ui.FxEventHandlerImplicits.{ actionEvent2EventHandler, keyEvent2EventHandler }
+import ftp.ui.errorhandle.{ ErrorHandle, ExceptionHandler }
+import ftp.ui.listeners.RemoteItemChangeListener
+import ftp.util.ConfigObj
+import ftp.util.ImplicitConversions.funToRunnable
 
 /**
  * Used for the FX-GUI.

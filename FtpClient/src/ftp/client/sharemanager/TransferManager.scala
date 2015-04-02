@@ -1,10 +1,10 @@
 package ftp.client.sharemanager
 
-import scala.actors.Actor
-import java.nio.file.Path
-import ftp.client.filesystem.FileDescriptor
-import ftp.client.FtpClient
 import java.nio.file.Files
+
+import scala.actors.Actor
+
+import ftp.client.FtpClient
 import ftp.response.Receivable
 import ftp.ui.errorhandle.ErrorHandle
 

@@ -1,8 +1,7 @@
 package ftp.client
 
 import java.io.PrintWriter
-import java.net.InetAddress
-import java.net.Socket
+import java.net.{ InetAddress, Socket }
 import java.util.Scanner
 
 import ftp.response.Receivable
