@@ -176,6 +176,14 @@ class FtpGui extends Application {
     txtPassword.setOnKeyPressed((ev: KeyEvent) => if (ev.getCode == KeyCode.ENTER) connect())
 
     cbAnon.setSelected(false)
+    //handler for tick-untick "login anonnymous
+    cbAnon.setOnAction((ev: ActionEvent) => if (cbAnon.isSelected) {
+      txtUsername.setDisable(true)
+      txtPassword.setDisable(true)
+    } else {
+      txtUsername.setDisable(false)
+      txtPassword.setDisable(false)
+    })
 
     top.add(newBoldText(lang("servername")), 0, 0)
     top.add(txtServer, 1, 0)
@@ -296,7 +304,7 @@ class FtpGui extends Application {
    */
   private def genRemoteFs(): TreeView[FileDescriptor] = {
     val tree = new TreeView[FileDescriptor](new TreeItem[FileDescriptor](new RemoteFile(lang("default-remote-entry"))))
-
+    tree.setDisable(true) //set to disable because without login it's not usable
     tree.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     return tree
   }
@@ -323,6 +331,7 @@ class FtpGui extends Application {
     //add EventHalders to all child's that aren't leafs ( subRoots are folders ;) )
     root.getChildren.filter(!_.isLeaf()).foreach { x => x.expandedProperty().addListener(listener) }
 
+    remoteFs.setDisable(false) //activate because now it's usable
     remoteFs.setRoot(root)
   }
 
