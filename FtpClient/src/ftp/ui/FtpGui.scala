@@ -390,6 +390,9 @@ class FtpGui extends Application {
       ftpClient.disconnect()
       ftpClient = null
     }
+
+    remoteFs.setRoot(new TreeItem[FileDescriptor](new RemoteFile(lang("default-remote-entry"))))
+    remoteFs.setDisable(true)
   }
 
   /**
