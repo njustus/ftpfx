@@ -83,7 +83,7 @@ trait FtpClient {
    * @see [[ftp.client.FtpClient#getServerInformation()]]
    */
   def getServerInformationAsMap(): Map[String, String] =
-    getClientInformation().split("\n").flatMap(line =>
+    getServerInformation().split("\n").flatMap(line =>
       if (line.contains("=")) {
         val pairs = line.split("=")
         Some((pairs(0), pairs(1)))
